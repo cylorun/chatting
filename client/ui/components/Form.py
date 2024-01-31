@@ -1,7 +1,7 @@
 from tkinter import *
 
-class Form:
-    def __init__(self, parent,  *fields):
-        self.frame = Frame(parent)
-        self.frame.pack()
+class Form(Frame):
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+
         pass

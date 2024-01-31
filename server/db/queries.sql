@@ -6,7 +6,7 @@ CREATE TABLE users(user_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     );
 
 CREATE TABLE messages(message_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        user_id INTEGER,
+                        user_id INTEGER, -- AKA message owner
                         channel_id INTEGER,
                         content TEXT,
                         date INTEGER);
