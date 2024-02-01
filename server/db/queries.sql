@@ -40,10 +40,28 @@ INSERT INTO users (name, email, password) VALUES
 
 
 -- Inserts for Channel 1
-INSERT INTO messages (user_id, channel_id, content) VALUES
-(1, 1, 'Hello, this is user 1 in Channel 1!'),
-(5, 1, 'User 5 says something in Channel 1.'),
-(10, 1, 'Message from user 10 in Channel 1.');
+INSERT INTO messages (user_id, channel_id, content, date) VALUES
+(1, 1, 'Hello, this is user 1 in Channel 1!', 1643758800),
+(5, 1, 'User 5 says something in Channel 1.', 1643758810),
+(10, 1, 'Message from user 10 in Channel 1.', 1643758820),
+(7, 1, 'Another message in Channel 1.', 1643758830),
+(9, 1, 'User 9 joined Channel 1.', 1643758840),
+(14, 1, 'Hello from user 14 in Channel 1.', 1643758850),
+(6, 1, 'User 6 posted in Channel 1.', 1643758860),
+(11, 1, 'Message by user 11 in Channel 1.', 1643758870),
+(4, 1, 'User 4 reporting in Channel 1!', 1643758880),
+(16, 1, 'Another message from user 16 in Channel 1.', 1643758890),
+(13, 1, 'User 13 posted in Channel 1.', 1643758900),
+(20, 1, 'Message by user 20 in Channel 1.', 1643758910),
+(2, 1, 'User 2 says hi in Channel 1.', 1643758920),
+(19, 1, 'Hello, it''s user 19 in Channel 1.', 1643758930),
+(17, 1, 'User 17 reporting in Channel 1.', 1643758940),
+(8, 1, 'Message from user 8 in Channel 1.', 1643758950),
+(12, 1, 'User 12 says something in Channel 1.', 1643758960),
+(15, 1, 'Hello from user 15 in Channel 1.', 1643758970),
+(3, 1, 'User 3 posted in Channel 1.', 1643758980),
+(18, 1, 'Message by user 18 in Channel 1.', 1643758990),
+(21, 1, 'User 21 joined Channel 1.', 1643759000);
 
 -- Inserts for Channel 2
 INSERT INTO messages (user_id, channel_id, content) VALUES

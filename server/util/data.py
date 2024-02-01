@@ -33,8 +33,22 @@ class Data:
             return False
         
     def get_db(self):
-        return sqlite3.connect(f'{os.getcwd()}\\server\\db\\app.db')
-
+        return sqlite3.connect(f'{os.getcwd()}\\db\\app.db')
+    
+    @staticmethod
+    def user_from_id(self, user_id):
+            
+            # {"user_id":"122"}
+            for user in self.data['users']:
+                if user_id == user['user_id']:
+                    return user
+                
+            return {"date":	None,
+                            "email"	:"demo@demo.com",
+                            "name"	:"demo",
+                            "password	":"demo",
+                            "user_id"	:"0"}
+                
     @staticmethod
     def get_as_dict(cursor):
         return [dict(zip([column[0] for column in cursor.description], row)) for row in cursor.fetchall()]
