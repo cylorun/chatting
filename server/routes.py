@@ -39,12 +39,14 @@ class App:
             
         @self.app.route('/api/channel/<int:channel_id>', methods=['GET'])
         def channel_info(channel_id):
-            channel_messages = []
+            channel = {"messages":[],"channel":{}}
             for message in self.messages:
                 if message['channel_id'] == channel_id:
                     message['owner'] = self.user_from_id(message['user_id'])
-                    channel_messages.append(message)
-            return jsonify(channel_messages)
+                    channel['messages'].append(message)
+            channel['channel'] = self.data_base.select(f'SELECT * FROM channels WHERE channel_id = {channel_id}')
+            print(channel)
+            return jsonify(channel)
             
         # @self.app.route('/api/user', methods=['POST'])
         # def user_from_id():

@@ -1,9 +1,9 @@
 from tkinter import *
-from components.ChatRoom import ChatRoom
+from ui.components.Channel import ChatRoom
 class App:
     def __init__(self):
         self.win = Tk()
-
+        
         self.win.title('Lokaverk')    
         self.win.geometry('600x600')
         

@@ -31,6 +31,13 @@ class Data:
         except Exception as e:
             print(e)
             return False
+    def select(self, query: str):
+        db = self.get_db()
+    
+        cursor = db.cursor()
+        cursor.execute(query)
+
+        return self.get_as_dict(cursor)
         
     def get_db(self):
         return sqlite3.connect(f'{os.getcwd()}\\db\\app.db')
@@ -51,7 +58,8 @@ class Data:
                 
     @staticmethod
     def get_as_dict(cursor):
-        return [dict(zip([column[0] for column in cursor.description], row)) for row in cursor.fetchall()]
+        d = [dict(zip([column[0] for column in cursor.description], row)) for row in cursor.fetchall()]
+        return d
 
 
 
