@@ -18,8 +18,16 @@ class App:
         @self.app.route('/api/send_msg', methods=['POST'])
         def send_msg():
             data = request.get_json()
-            print(data)
-            return jsonify({'sucess':229})    
+            try:
+                user_id = data['user_id']
+                channel_id = data['channel_id']
+                content = data['content']
+            except Exception:
+                return jsonify({'Status':400})
+            
+            self.data_base.insert("INSERT INTO messages (user_id, channel_id, content, date) VALUES (?,?,?,?)",(user_id, channel_id, content, int(time.time())))
+            self.load_data()
+            return jsonify({'Status':200})    
         
         @self.app.route('/api/register',methods=['POST'])
         def register():
@@ -29,13 +37,13 @@ class App:
                 password = data['password']
                 email = data['email']
             except Exception:
-                return jsonify({'Error':400})
+                return jsonify({'Status':400})
             
             if self.data_base.insert('INSERT INTO users (name, email, password, date) VALUES (?,?,?,?)', (name, password, email, int(time.time()))):
                 self.load_data()
-                return jsonify({"Sucess":data})
+                return jsonify({"Status":200})
             else:
-                return jsonify({'Error':400})
+                return jsonify({'Status':400})
             
         @self.app.route('/api/channel/<int:channel_id>', methods=['GET'])
         def channel_info(channel_id):
@@ -45,36 +53,29 @@ class App:
                     message['owner'] = self.user_from_id(message['user_id'])
                     channel['messages'].append(message)
             channel['channel'] = self.data_base.select(f'SELECT * FROM channels WHERE channel_id = {channel_id}')
-            print(channel)
             return jsonify(channel)
-            
-        # @self.app.route('/api/user', methods=['POST'])
-        # def user_from_id():
-        #     data = request.get_json()
-        #     # {"user_id":"122"}
-        #     for user in self.users:
-        #         if data['user_id'] == user['user_id']:
-        #             return jsonify(user)
-                
-        #     return jsonify({"date":	None,
-        #                     "email"	:"demo@demo.com",
-        #                     "name"	:"demo",
-        #                     "password	":"demo",
-        #                     "user_id"	:"0"})
-                
-            # curl -X POST -H "Content-Type: application/json" -d "{\"username\":\"John Doe's wife\", \"password\":\"MyWiftUg1yA55F0ck\",\"email\":\"john@doe.com\"}" http://127.0.0.1:25565/api/register       
+        
+        @self.app.route('/api/status', methods=['GET'])
+        def status():
+            return jsonify({'Status':201})
+          
         self.load_data()
+        # curl -X POST -H "Content-Type: application/json" -d "{\"username\":\"John Doe's wife\", \"password\":\"MyWiftUg1yA55F0ck\",\"email\":\"john@doe.com\"}" http://127.0.0.1:25565/api/register     
+
+
+
+
+
     def user_from_id(self, user_id):
-        # {"user_id":"122"}
         for user in self.users:
             if user_id == user['user_id']:
                 return user
-            
         return {"date":	None,
-                        "email"	:"demo@demo.com",
-                        "name"	:f'DeletedUser {random.randint(1,12312)}',
-                        "password	":"demo",
-                        "user_id"	:"0"}
+                "email"	:None,
+                "name"	:'DeletedUser',
+                "password	":None,
+                "user_id"	:"0"}
+    
         
     def load_data(self):
         d = self.data_base.load()
@@ -82,6 +83,6 @@ class App:
         self.messages = d['messages']
     
     def run(self, port = 25565):
-        Logging.info(f'Server up at localhost:{port}')
+        Logging.info(f'localhost:{port}')
         self.app.run(debug=True, port=port)
 

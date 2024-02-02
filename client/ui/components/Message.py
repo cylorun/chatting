@@ -14,7 +14,7 @@ class Message(Frame):
         self.message_content_label = Label(self)
         
         self.load()
-        print(f'Loaded message with ID:{self.message_data['message_id']}')
+        # print(f'Loaded message with ID:{self.message_data["message_id"]}')
         
     def load(self):
         self.time_stm_label.configure(text=self.date, font=('Arial', 7, 'italic'))

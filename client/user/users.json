@@ -1,0 +1,17 @@
+[
+    {"name":"peepo josh",
+    "email":"peepo@josh.is",
+    "date":17777779090,
+    "password":"peepossecret123335",
+    "user_id":33,
+    "active":true},
+
+    {"name":"Boris John",
+    "email":"Boris@joe.com",
+    "date":17777773330,
+    "password":"bors",
+    "user_id":34,
+    "active":false}
+
+
+]
