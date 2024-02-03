@@ -4,27 +4,26 @@ from tkinter import messagebox
 from ui.components.Channel import Channel
 from user.User import User
 from user.Creds import Creds
+from ui.components.Form import SignIn, Login
+
 import host
-import subprocess, requests, sys
+import requests, sys
 
 class Chatterino:
-    def __init__(self, user):
+    def __init__(self, user = None):
         self.user = user
         self.win = Tk()
         self.win.title('Lokaverk')    
         self.win.geometry('600x600')
         self.max_retries = 5
         self.good_connection = False
-        self.establish_conn()
 
-    def get_owner(self):
-        return self.win
-    
     def run(self):
-        main_room = Channel(app.get_owner())
-        main_room.pack()
         self.win.mainloop()
     
+    def add_room(self, room):
+        room.pack()
+        
     def server_on(self):
         try:
             requests.get(f'{host.HOSTNAME}/api/status')
@@ -39,16 +38,32 @@ class Chatterino:
                 return
             print(f'Could not connect to the server, trying {i} more times.')
         messagebox.showerror("Server Error","Could not connect to the server")
+        sys.exit(1)
 
             
 
 
 if __name__ == '__main__':
-    usr = User.get_instance(Creds.get_active())
-    app = Chatterino(usr)
-    app.server_on()
+    def call(user = None):
+        app.establish_conn()
+        if user != None:
+            
+            user = requests.post(f'{host.HOSTNAME}/api/register', json=user,
+                                headers={'Content-Type': 'application/json'}).json()[0]
+            print(user)
+            user['active'] = True
+            app.user = user
+            Creds.add(user)
+        if app.good_connection:
+            app.add_room(Channel(app.win, 2))
+            app.run()
+
+
+    app = Chatterino()
     app.establish_conn()
-    if app.good_connection:
-        app.run()
+    if Creds.has_active():
+        app.user = User.get_instance(Creds.get_active())
+        call()
     else:
-        sys.exit(1)
+        form = SignIn(callback=call)
+        form.mainloop()

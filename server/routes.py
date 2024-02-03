@@ -33,15 +33,15 @@ class App:
         def register():
             data = request.get_json()
             try:
-                name = data['username']
+                name = data['name']
                 password = data['password']
                 email = data['email']
             except Exception:
                 return jsonify({'Status':400})
             
-            if self.data_base.insert('INSERT INTO users (name, email, password, date) VALUES (?,?,?,?)', (name, password, email, int(time.time()))):
+            if self.data_base.insert('INSERT INTO users (name, email, password, date) VALUES (?,?,?,?)', (name, email, password, int(time.time()))):
                 self.load_data()
-                return jsonify({"Status":200})
+                return jsonify(self.data_base.select(f"SELECT * FROM users WHERE name='{name}' AND email='{email}' AND password='{password}'"))
             else:
                 return jsonify({'Status':400})
             
@@ -58,7 +58,9 @@ class App:
         @self.app.route('/api/status', methods=['GET'])
         def status():
             return jsonify({'Status':201})
-          
+        
+        # @self.app.route('/api/', methods=['POST'])
+        # def
         self.load_data()
         # curl -X POST -H "Content-Type: application/json" -d "{\"username\":\"John Doe's wife\", \"password\":\"MyWiftUg1yA55F0ck\",\"email\":\"john@doe.com\"}" http://127.0.0.1:25565/api/register     
 

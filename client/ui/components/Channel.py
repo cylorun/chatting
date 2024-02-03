@@ -1,16 +1,20 @@
 from tkinter import *
-import requests, host
+import requests, host, threading
 from ui.components.Message import Message
+from user.User import User
 
 class Channel(Frame):
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent,id, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
-        self.channel_id = 1
+        self.channel_id = id
         self.info = self.get_channel_info()['channel'][0]
         self.messages = []
         self.scroll_frame = Frame(self)
         self.input_frame = Frame(self)
+        info = User.get_instance()
+        self.user = {'name':info.get_name(),'user_id':info.get_id(),'password':info.get_password(),'email':info.get_email()}
+        
         self.label = Label(self, text=self.info['name'], bg='red', fg='white', font=('Helvetica', 16))
         self.label.pack(padx=10, pady=5, side=TOP)
 
@@ -29,7 +33,7 @@ class Channel(Frame):
 
         self.message_var = StringVar()
         self.send_button = Button(self.input_frame, text="Send", font=('Arial', 8, 'italic'),
-                                  command=lambda: self.send_message({"user_id": 17, "channel_id": self.channel_id,
+                                  command=lambda: self.send_message({"user_id": self.user['user_id'], "channel_id": self.channel_id,
                                                                      "content": self.message_var.get()}))
         self.message_entry = Entry(self.input_frame, textvariable=self.message_var)
 
@@ -38,7 +42,7 @@ class Channel(Frame):
         self.input_frame.pack(side=BOTTOM, anchor=SW)
 
         self.message_canvas.yview_moveto(1.0)
-        self.run_tick() 
+        threading.Thread(target=self.run_tick, daemon=True).start()
 
     def on_mousewheel(self, event):
         if event.delta < 0:

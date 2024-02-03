@@ -6,11 +6,15 @@ class User:
         self._date = data['date']
         self._password = data['password']
         self._email = data['email']
+        self._id = data['user_id']
 
     @classmethod
-    def get_instance(cls, data):
+    def get_instance(cls, data=None):
         if cls._instance is None:
-            cls._instance = cls(data)
+            if data is not None:
+                cls._instance = cls(data)
+            else:
+                raise ValueError("Data must be provided for the first instance.")
         return cls._instance
 
     def get_name(self):
@@ -24,3 +28,5 @@ class User:
 
     def get_email(self):
         return self._email
+    def get_id(self):
+        return self._id
