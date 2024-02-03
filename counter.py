@@ -14,6 +14,5 @@ def search_and_count_lines(root_directory):
     return t
 
 if __name__ == "__main__":
-    
-    print(search_and_count_lines("/home/alfgrimur/Desktop/school/sem2/forri2/forri2-verk/"))
+    print(search_and_count_lines("C:\\Users\\alfgr7\\Desktop\\school\\forri2\\forriVerk\\"))
   

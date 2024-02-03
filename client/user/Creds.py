@@ -4,7 +4,7 @@ class Creds:
     cred_file = os.path.join(os.getcwd(), 'client','user', 'users.json')
 
     @staticmethod
-    def read():
+    def read() -> list:
         if os.path.exists(Creds.cred_file):
             with open(Creds.cred_file, 'r') as file:
                 return json.load(file)
@@ -26,6 +26,15 @@ class Creds:
             with open(Creds.cred_file, 'w') as file:
                 json.dump(data, file)
                 
+    @staticmethod
+    def remove(user):
+        data = Creds.read()
+        for u in data:
+            if u['user_id'] == user['user_id']:
+                data.remove(u)
+        with open(Creds.cred_file, 'w') as file:
+            json.dump(data, file)
+            
     @staticmethod
     def set_active(user_id):
         users = Creds.read()

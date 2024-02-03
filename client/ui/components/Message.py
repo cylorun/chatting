@@ -1,5 +1,5 @@
 from tkinter import *
-import time, datetime, requests
+import datetime
 class Message(Frame):
     def __init__(self, parent, message, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
@@ -14,7 +14,6 @@ class Message(Frame):
         self.message_content_label = Label(self)
         
         self.load()
-        # print(f'Loaded message with ID:{self.message_data["message_id"]}')
         
     def load(self):
         self.time_stm_label.configure(text=self.date, font=('Arial', 7, 'italic'))

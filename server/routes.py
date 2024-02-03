@@ -55,6 +55,15 @@ class App:
             channel['channel'] = self.data_base.select(f'SELECT * FROM channels WHERE channel_id = {channel_id}')
             return jsonify(channel)
         
+        @self.app.route('/api/channel_name', methods=['POST'])
+        def channel_name():
+            data = request.get_json()
+            try:
+                name = data['name']
+            except Exception:
+                return jsonify({'Status':400})
+            return self.data_base.select(f"SELECT * FROM channels WHERE name ='{name}'")
+        
         @self.app.route('/api/status', methods=['GET'])
         def status():
             return jsonify({'Status':201})

@@ -35,6 +35,7 @@ class SignIn(Toplevel):
                     'password':self.psw_var.get(),
                     'email':self.email_var.get()}
             self.callback(data)
+            self.destroy()
         else:
             messagebox.showwarning('Unfilled fields','You did not fill out all the fields!!!!')
             

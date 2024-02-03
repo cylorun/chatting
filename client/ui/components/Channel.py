@@ -12,8 +12,11 @@ class Channel(Frame):
         self.messages = []
         self.scroll_frame = Frame(self)
         self.input_frame = Frame(self)
-        info = User.get_instance()
-        self.user = {'name':info.get_name(),'user_id':info.get_id(),'password':info.get_password(),'email':info.get_email()}
+        userobj = User.get_instance()
+        self.user ={'name' : userobj.get_name(),
+                    'user_id' : userobj.get_id(),
+                    'password' : userobj.get_password(),
+                    'email' : userobj.get_email()}
         
         self.label = Label(self, text=self.info['name'], bg='red', fg='white', font=('Helvetica', 16))
         self.label.pack(padx=10, pady=5, side=TOP)
@@ -33,8 +36,8 @@ class Channel(Frame):
 
         self.message_var = StringVar()
         self.send_button = Button(self.input_frame, text="Send", font=('Arial', 8, 'italic'),
-                                  command=lambda: self.send_message({"user_id": self.user['user_id'], "channel_id": self.channel_id,
-                                                                     "content": self.message_var.get()}))
+                                command=lambda: self.send_message({"user_id": self.user['user_id'], "channel_id": self.channel_id,
+                                                                    "content": self.message_var.get()}))
         self.message_entry = Entry(self.input_frame, textvariable=self.message_var)
 
         self.send_button.pack(side=RIGHT)
@@ -42,7 +45,7 @@ class Channel(Frame):
         self.input_frame.pack(side=BOTTOM, anchor=SW)
 
         self.message_canvas.yview_moveto(1.0)
-        threading.Thread(target=self.run_tick, daemon=True).start()
+        self.run_tick()
 
     def on_mousewheel(self, event):
         if event.delta < 0:
@@ -57,11 +60,10 @@ class Channel(Frame):
 
     def send_message(self, message):
         if message['content'].strip() != '':
-            res = requests.post(f'{host.HOSTNAME}/api/send_msg', json=message,
-                                headers={'Content-Type': 'application/json'}).json()
+            threading.Thread(target=lambda:requests.post(f'{host.HOSTNAME}/api/send_msg', json=message,
+                                headers={'Content-Type': 'application/json'}).json(), daemon=True).start()
             self.message_entry.delete(0,END)
             self.run_tick(False)
-            print(res)
 
     def get_channel_info(self) -> dict:
         res = requests.get(f'{host.HOSTNAME}/api/channel/{self.channel_id}')

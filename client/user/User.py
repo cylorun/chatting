@@ -17,6 +17,14 @@ class User:
                 raise ValueError("Data must be provided for the first instance.")
         return cls._instance
 
+    def to_dict(self):
+        return {
+            "name":self._name,
+            "date":self._date,
+            "password":self._password,
+            "email":self._password,
+            "user_id":self._id
+        }
     def get_name(self):
         return self._name
 
