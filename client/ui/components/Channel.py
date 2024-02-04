@@ -1,14 +1,15 @@
 from tkinter import *
-import requests, host, threading, time
+import requests, host, threading, time, os
 from ui.components.Message import Message
+from ui.components.ClickableImage import ClickableImage
 from user.User import User
 
 class Channel(Frame):
-    def __init__(self, parent,id, *args, **kwargs):
+    def __init__(self, parent, id, on_close, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
         self.channel_id = id
-        self.info = {}
+        self.channel_info = {}
         self.messages = []
         self.tmp_messages = []
         tmp_user = User.get_instance()
@@ -17,6 +18,7 @@ class Channel(Frame):
                     'password' : tmp_user.get_password(),
                     'email' : tmp_user.get_email()}
         
+        ClickableImage(self, on_close, f"{os.getcwd()}\\client\\ui\\x_button.png").pack(side=TOP, anchor=E)
         self.scroll_frame = Frame(self)
         self.input_frame = Frame(self)
         self.label = Label(self)
@@ -54,11 +56,11 @@ class Channel(Frame):
             self.message_canvas.yview_scroll(1, "units")
             
     def on_info(self, info):
-        self.info = info['channel'][0]
-        self.label.configure(text=self.info['name'], bg='red', fg='white', font=('Helvetica', 16))
+        self.channel_info = info['channel'][0]
+        self.label.configure(text=self.channel_info['name'], bg='red', fg='white', font=('Helvetica', 16))
     
     def wait_for_info(self):
-        while self.info == {}:
+        while self.channel_info == {}:
             time.sleep(.1)
             
     def load_content(self, messages: list):

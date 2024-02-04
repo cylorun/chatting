@@ -24,7 +24,7 @@ class Creds:
             data = curr_data
             data.append(user)
             with open(Creds.cred_file, 'w') as file:
-                json.dump(data, file)
+                json.dump(data, file, indent=2)
                 
     @staticmethod
     def remove(user):
@@ -33,7 +33,7 @@ class Creds:
             if u['user_id'] == user['user_id']:
                 data.remove(u)
         with open(Creds.cred_file, 'w') as file:
-            json.dump(data, file)
+            json.dump(data, file, indent=2)
             
     @staticmethod
     def set_active(user_id):
@@ -45,7 +45,7 @@ class Creds:
                 user['active'] = False        
         
         with open(Creds.cred_file, 'w') as file:
-                json.dump(users, file)
+                json.dump(users, file, indent=2)
                 
     @staticmethod
     def has_active():

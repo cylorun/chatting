@@ -14,7 +14,7 @@ class Chatterino:
         self.user = user
         self.root = Tk()
         self.root.title('Lokaverk')    
-        self.root.geometry('600x600')
+        self.root.geometry('600x700')
         self.max_retries = 5
         self.channel_json = f'{os.getcwd()}\\client\\ui\\channels.json'
         self.notebook = ttk.Notebook(self.root)
@@ -66,9 +66,9 @@ class Chatterino:
             loaded = self.get_loaded_channels()
             for channel in data:
                 if not channel['channel_id'] in loaded:
-                    c = Channel(self.notebook, channel['channel_id'])
+                    c = Channel(self.notebook, channel['channel_id'], self.remove_channel)
                     c.wait_for_info()
-                    self.notebook.add(c, text=c.info['name'])
+                    self.notebook.add(c, text=c.channel_info['name'])
     
     def get_loaded_channels(self):
         return [k.channel_id for k in self.notebook.winfo_children() ]
@@ -78,13 +78,27 @@ class Chatterino:
             data = json.load(file)
             res = requests.post(f'{host.HOSTNAME}/api/channel_name/', json={'name':channel_name},
                                 headers={'Content-Type': 'application/json'}).json()
-            channel = Channel(self.notebook,res[0]['channel_id'])
-            channel.wait_for_info()
-            self.notebook.add(channel,text=channel.info['name'])
+            c = Channel(self.notebook, res[0]['channel_id'], self.remove_channel)
+            c.wait_for_info()
+            self.notebook.add(c,text=c.channel_info['name'])
 
+    def remove_channel(self, channel):
+        for w in self.notebook.winfo_children():
+            if w.channel_info['channel_id'] == channel.channel_info['channel_id']:
+                w.destroy()
+
+        with open(self.channel_json, 'r') as file:
+            data = json.load(file)
+
+        updated_data = [c for c in data if c['channel_id'] != channel.channel_info['channel_id']]
+
+        with open(self.channel_json, 'w') as file:
+            json.dump(updated_data, file, indent=2)
+
+        
     def add_user(self, user):
         req = requests.post(f'{host.HOSTNAME}/api/register', json=user,
-                                headers={'Content-Type': 'application/json'}).json()[0] # returns the user with an ID
+                                headers={'Content-Type': 'application/json'}).json() # returns the user with an ID
         req['active'] = True
         self.user = User.get_instance(req)
         Creds.add(req)
