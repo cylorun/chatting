@@ -1,5 +1,5 @@
 from tkinter import *
-import requests, host, threading
+import requests, host, threading, time
 from ui.components.Message import Message
 from user.User import User
 
@@ -8,17 +8,18 @@ class Channel(Frame):
         super().__init__(parent, *args, **kwargs)
 
         self.channel_id = id
-        self.info = self.get_channel_info()['channel'][0]
+        self.info = {}
         self.messages = []
+        self.tmp_messages = []
+        tmp_user = User.get_instance()
+        self.user ={'name' : tmp_user.get_name(),
+                    'user_id' : tmp_user.get_id(),
+                    'password' : tmp_user.get_password(),
+                    'email' : tmp_user.get_email()}
+        
         self.scroll_frame = Frame(self)
         self.input_frame = Frame(self)
-        userobj = User.get_instance()
-        self.user ={'name' : userobj.get_name(),
-                    'user_id' : userobj.get_id(),
-                    'password' : userobj.get_password(),
-                    'email' : userobj.get_email()}
-        
-        self.label = Label(self, text=self.info['name'], bg='red', fg='white', font=('Helvetica', 16))
+        self.label = Label(self)
         self.label.pack(padx=10, pady=5, side=TOP)
 
         self.message_canvas = Canvas(self.scroll_frame, bg='white', width=580, height=500, scrollregion=(0, 0, 550, 10000))
@@ -45,41 +46,62 @@ class Channel(Frame):
         self.input_frame.pack(side=BOTTOM, anchor=SW)
 
         self.message_canvas.yview_moveto(1.0)
+        threading.Thread(target=lambda: self.get_channel_info(self.on_info), daemon=True).start()
         self.run_tick()
-
+        
     def on_mousewheel(self, event):
         if event.delta < 0:
             self.message_canvas.yview_scroll(1, "units")
-
+            
+    def on_info(self, info):
+        self.info = info['channel'][0]
+        self.label.configure(text=self.info['name'], bg='red', fg='white', font=('Helvetica', 16))
+    
+    def wait_for_info(self):
+        while self.info == {}:
+            time.sleep(.1)
+            
     def load_content(self, messages: list):
         messages.sort(key=lambda x: x['message_id'], reverse=True)
         self.clear_frame(self.message_frame)
         for message in messages:
             Message(self.message_frame, message=message).pack(side=BOTTOM, anchor=SW)
-        print('reloaded all messages!')
 
     def send_message(self, message):
         if message['content'].strip() != '':
             threading.Thread(target=lambda:requests.post(f'{host.HOSTNAME}/api/send_msg', json=message,
                                 headers={'Content-Type': 'application/json'}).json(), daemon=True).start()
             self.message_entry.delete(0,END)
-            self.run_tick(False)
+            # self.get_channel_info(self.reload)
 
-    def get_channel_info(self) -> dict:
-        res = requests.get(f'{host.HOSTNAME}/api/channel/{self.channel_id}')
-        res.raise_for_status()
-        return res.json()
 
     def clear_frame(self, frame):
         for f in frame.winfo_children():
             f.destroy()
 
-    def run_tick(self, b = True):
-        new = self.get_channel_info()['messages']
+    def get_channel_info(self, callback):  # requests from api slow asf basically and really inconsistent speed wise
+            def make_request():
+                try:
+                    res = requests.get(f'{host.HOSTNAME}/api/channel/{self.channel_id}')
+                    res.raise_for_status()
+                    result = res.json()
+                except Exception as e:
+                    raise Exception
 
-        if len(new) != len(self.messages):
-            self.messages = new
-            self.load_content(self.messages)
-        if b:
-            self.after(5000, self.run_tick)  
+                callback(result)
+
+            thread = threading.Thread(target=make_request)
+            thread.start()
+            
+    def run_tick(self):
+        self.get_channel_info(self.reload)
+        self.after(5000, self.run_tick)
+        
+    def reload(self, updated_messages):
+        updated_messages = updated_messages['messages']
+        if len(updated_messages) != len(self.messages):
+            self.messages = updated_messages
+            threading.Thread(target=lambda:self.load_content(self.messages), daemon=True).start()
+            
+
 

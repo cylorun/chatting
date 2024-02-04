@@ -67,6 +67,7 @@ class Chatterino:
             for channel in data:
                 if not channel['channel_id'] in loaded:
                     c = Channel(self.notebook, channel['channel_id'])
+                    c.wait_for_info()
                     self.notebook.add(c, text=c.info['name'])
     
     def get_loaded_channels(self):
@@ -78,6 +79,7 @@ class Chatterino:
             res = requests.post(f'{host.HOSTNAME}/api/channel_name/', json={'name':channel_name},
                                 headers={'Content-Type': 'application/json'}).json()
             channel = Channel(self.notebook,res[0]['channel_id'])
+            channel.wait_for_info()
             self.notebook.add(channel,text=channel.info['name'])
 
     def add_user(self, user):
