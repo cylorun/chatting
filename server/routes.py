@@ -22,12 +22,12 @@ class App:
                 user_id = data['user_id']
                 channel_id = data['channel_id']
                 content = data['content']
-            except Exception:
-                return jsonify({'Status':400})
+            except Exception as e:
+                return jsonify({'Error':e}), 400
             
             self.data_base.insert("INSERT INTO messages (user_id, channel_id, content, date) VALUES (?,?,?,?)",(user_id, channel_id, content, int(time.time())))
             self.load_data()
-            return jsonify({'Status':200})    
+            return jsonify({'Success':200}), 200 
         
         @self.app.route('/api/register',methods=['POST'])
         def register():
@@ -36,14 +36,14 @@ class App:
                 name = data['name']
                 password = data['password']
                 email = data['email']
-            except Exception:
-                return jsonify({'Status':400})
+            except Exception as e:
+                return jsonify({'Error, bad request':e}), 400
             
             if self.data_base.insert('INSERT INTO users (name, email, password, date) VALUES (?,?,?,?)', (name, email, password, int(time.time()))):
                 self.load_data()
                 return jsonify(self.data_base.select(f"SELECT * FROM users WHERE name='{name}' AND email='{email}' AND password='{password}'")[0])
             else:
-                return jsonify({'Status':400})
+                return jsonify({'Failed to insert to DB':"routes.py 46"}), 400
             
         @self.app.route('/api/channel/<int:channel_id>', methods=['GET'])
         def channel_info(channel_id):
@@ -60,13 +60,13 @@ class App:
             data = request.get_json()
             try:
                 name = data['name']
-            except Exception:
-                return jsonify({'Status':400})
-            return self.data_base.select(f"SELECT * FROM channels WHERE name ='{name}'")
+            except Exception  as e:
+                return jsonify({'Error':e}), 400
+            return self.data_base.select(f"SELECT * FROM channels WHERE name LIKE '%{name}%'")
         
         @self.app.route('/api/status', methods=['GET'])
         def status():
-            return jsonify({'Status':201})
+            return jsonify({'Up':"200"}), 200
         
         # @self.app.route('/api/', methods=['POST'])
         # def

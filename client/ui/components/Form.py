@@ -25,10 +25,6 @@ class SignIn(Toplevel):
         self.frame.pack()
         
 
-
-        
-        
-            
     def submit(self):
         if self.name_var.get() and  self.email_var.get() and self.psw_var.get():
             data = {'name':self.name_var.get(),
@@ -41,6 +37,23 @@ class SignIn(Toplevel):
             
 class Login(Toplevel):
     def __init__(self, parent,*args,**kwargs):
-        super().__init__(parent, args, **kwargs)
+        super().__init__(parent, *args, **kwargs)
         self.frame = LabelFrame(self,text="Login Form")
-            
+
+
+class ChannelForm(Toplevel):
+    def __init__(self,callback, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.callback = callback
+        self.frame = LabelFrame(self,text="Add a channel.")
+        self.frame.pack(fill=Y, expand=Y)
+        self.channel_var = StringVar()
+        self.channel_entry = Entry(self.frame, textvariable=self.channel_var)
+        self.channel_entry.pack()
+        self.submit_button = Button(self.frame, text="Add", command=self.on_click)
+        self.submit_button.pack(side=BOTTOM)
+    
+    def on_click(self):
+        self.callback(self.channel_var.get())
+        self.destroy()
+
