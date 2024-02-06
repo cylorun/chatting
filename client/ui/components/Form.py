@@ -24,7 +24,8 @@ class SignIn(Toplevel):
         self.email_entry.grid(column=3, row=2)
         self.psw_entry.grid(column=3, row=3)
         self.frame.pack()
-        
+        self.geometry('450x170+700+400')
+
 
     def submit(self):
         if self.name_var.get() and  self.email_var.get() and self.psw_var.get():
@@ -59,6 +60,7 @@ class Login(Toplevel):
         self.name_entry.grid(column=3, row=1)
         self.psw_entry.grid(column=3, row=3)
         self.frame.pack()
+        self.geometry('450x150+700+400')
         
 
     def submit(self):

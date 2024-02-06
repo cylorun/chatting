@@ -175,5 +175,4 @@ if __name__ == '__main__':
         app.user = User.get_instance(Creds.get_active())
         run()
     else:
-        form = SignIn(callback=run)
-        form.mainloop()
+        SignIn(callback=run).mainloop()
