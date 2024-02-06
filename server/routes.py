@@ -38,12 +38,28 @@ class App:
                 email = data['email']
             except Exception as e:
                 return jsonify({'Error, bad request':e}), 400
-            
+
             if self.data_base.insert('INSERT INTO users (name, email, password, date) VALUES (?,?,?,?)', (name, email, password, int(time.time()))):
                 self.load_data()
-                return jsonify(self.data_base.select(f"SELECT * FROM users WHERE name='{name}' AND email='{email}' AND password='{password}'")[0])
+                return jsonify(self.data_base.select(f"SELECT * FROM users WHERE name='{name}' AND email='{email}' AND password='{password}'")[0]), 200
             else:
                 return jsonify({'Failed to insert to DB':"routes.py 46"}), 400
+        
+        @self.app.route('/api/login', methods=['POST'])
+        def login():
+            data = request.get_json()
+            try:
+                name = data['name']
+                password = data['password']
+            except Exception:
+                pass
+            
+            u = self.data_base.select(f"SELECT * FROM users WHERE name='{name}' AND password='{password}'")
+            if len(u) >=1:
+                return jsonify(u[0]), 200
+            else:
+                return jsonify('Login failed'), 402
+
             
         @self.app.route('/api/channel/<int:channel_id>', methods=['GET'])
         def channel_info(channel_id):

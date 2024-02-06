@@ -1,16 +1,17 @@
 from tkinter import *
 from tkinter import messagebox
 
-import requests
+import requests, threading
 class SignIn(Toplevel):
     def __init__(self, callback, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.frame = LabelFrame(self, text="Signin Form")
+        self.frame = LabelFrame(self, text="Sign in")
         self.callback = callback
         Label(self.frame, text="Username").grid(column=1, row=1)
         Label(self.frame, text="Email").grid(column=1, row=2)
         Label(self.frame, text="Password").grid(column=1, row=3)
         Button(self.frame, text="Submit", command=self.submit).grid(column=2,row=5)
+        Button(self.frame, text="Already have an account?", command=lambda: self.change_type(*args, **kwargs)).grid(column=2,row=6)
         self.psw_var = StringVar()
         self.name_var = StringVar()
         self.email_var = StringVar()
@@ -30,16 +31,48 @@ class SignIn(Toplevel):
             data = {'name':self.name_var.get(),
                     'password':self.psw_var.get(),
                     'email':self.email_var.get()}
-            self.callback(data)
             self.destroy()
+            self.callback(user=data)
         else:
             messagebox.showwarning('Unfilled fields','You did not fill out all the fields!!!!')
+    
+    def change_type(self, *args, **kwargs):
+        Login(self.callback, *args, **kwargs)
+        self.destroy()
             
 class Login(Toplevel):
-    def __init__(self, parent,*args,**kwargs):
-        super().__init__(parent, *args, **kwargs)
-        self.frame = LabelFrame(self,text="Login Form")
+    def __init__(self, callback, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.frame = LabelFrame(self, text="Login")
+        self.callback = callback
+        Label(self.frame, text="Username").grid(column=1, row=1)
+        Label(self.frame, text="Password").grid(column=1, row=3)
+        Button(self.frame, text="Submit", command=self.submit).grid(column=2,row=5)
+        Button(self.frame, text="Don't have an account?", command=lambda: self.change_type(*args, **kwargs)).grid(column=2,row=6)
 
+        self.psw_var = StringVar()
+        self.name_var = StringVar()
+        
+        self.name_entry = Entry(self.frame, textvariable=self.name_var)
+        self.psw_entry = Entry(self.frame, textvariable=self.psw_var)
+
+        self.name_entry.grid(column=3, row=1)
+        self.psw_entry.grid(column=3, row=3)
+        self.frame.pack()
+        
+
+    def submit(self):
+        if self.name_var.get() and self.psw_var.get():
+            data = {'name':self.name_var.get(),
+                    'password':self.psw_var.get()}
+            self.destroy()
+            self.callback(True, data)
+        else:
+            messagebox.showwarning('Unfilled fields','You did not fill out all the fields!!!!')
+    
+    def change_type(self, *args, **kwargs):
+        SignIn(self.callback, *args, **kwargs)
+        self.destroy()
 
 class ChannelForm(Toplevel):
     def __init__(self,callback, *args, **kwargs):

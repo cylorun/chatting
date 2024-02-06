@@ -17,7 +17,7 @@ class Chatterino:
         self.root.title('Lokaverk')    
         self.root.geometry('600x650')
         self.max_retries = 5
-        self.channel_json = os.path.join(os.getcwd(),'client','ui','channels.json') # contains previously opened channels
+        self.channel_json = os.path.join(os.getcwd(),'ui','channels.json') # contains previously opened channels
         self.notebook = ttk.Notebook(self.root)
         self.menu = ToolMenu(self)
         
@@ -46,7 +46,7 @@ class Chatterino:
     def raise_for_conn(self):
         for i in range(self.max_retries,0,-1):
             if self.server_on():
-                return
+                return 
             print(f'Could not connect to the server, trying {i} more times.')
         messagebox.showerror("Server Error","Could not connect to the server")
         sys.exit(1)
@@ -65,7 +65,7 @@ class Chatterino:
                     pass
     
     def get_loaded_channels(self):
-        return [k.channel_id for k in self.notebook.winfo_children() ]
+        return [str(k.channel_id) for k in self.notebook.winfo_children() ]
     
     def add_channel(self, channel_name):
         res = requests.post(f'{host.HOSTNAME}/api/channel_name', json={'name': channel_name},
@@ -81,19 +81,23 @@ class Chatterino:
                 c.wait_for_info()
                 self.notebook.add(c, text=c.channel_info['name'])
                 self.notebook.select(c)
+                if not res_json[0]['channel_id'] in self.all_channel_ids():
+                    with open(self.channel_json, 'r') as file:
+                        data = json.load(file)
+                        data['channels'].append({'channel_id': res_json[0]['channel_id']})
 
-                with open(self.channel_json, 'r') as file:
-                    data = json.load(file)
-                    data['channels'].append({'channel_id': res_json[0]['channel_id']})
-
-                with open(self.channel_json, 'w') as file:
-                    json.dump(data, file,indent=2)
+                    with open(self.channel_json, 'w') as file:
+                        json.dump(data, file,indent=2)
 
             except json.decoder.JSONDecodeError:
                 messagebox.showwarning('Warning', 'Invalid JSON in the response.')
         else:
             messagebox.showwarning('Warning', f"Failed to add channel. Status code: {res.status_code}")
-
+    
+    def all_channel_ids(self):
+        with open(self.channel_json) as file:
+            return [i for i in json.load(file)['channels']]
+        
     def create_channel(self, data):
         try:
             name = data['name']
@@ -120,21 +124,32 @@ class Chatterino:
             json.dump(data, file, indent=2)
 
         
-    def add_user(self, user):
-        req = requests.post(f'{host.HOSTNAME}/api/register', json=user,
-                                headers={'Content-Type': 'application/json'}).json() # returns the user with an ID
-        req['active'] = True
-        self.user = User.get_instance(req)
-        Creds.add(req)
+    def add_user(self, user, is_login):
+        endpoint = '/api/register'
+        if is_login:
+            endpoint = '/api/login'
+
+        req = requests.post(f'{host.HOSTNAME}{endpoint}', json=user,
+                                headers={'Content-Type': 'application/json'}) # returns the user with an ID
+        user_data = req.json()
+        if req.status_code == 200:
+            user_data['active'] = True
+            self.user = User.get_instance(user_data)
+            Creds.add(user_data)
+        elif req.status_code == 402:
+            messagebox.showwarning('Login failed','Password or username incorrect')
 
     def get_active_channel(self):
-        idx = self.notebook.index(self.notebook.select())
-        return self.notebook.winfo_children()[idx]
+        try:
+            idx = self.notebook.index(self.notebook.select())
+            return self.notebook.winfo_children()[idx]
+        except Exception:
+            return None
     
     def exit(self):
         with open(self.channel_json, 'r') as file:
             data = json.load(file)
-            if len(data) >1:
+            if len(data) >1 and self.get_active_channel() != None:
                 data['last'] = self.get_active_channel().channel_info['channel_id']
 
         with open(self.channel_json, 'w') as file:
@@ -146,10 +161,10 @@ class Chatterino:
 
 
 if __name__ == '__main__':
-    def run(user = None):
+    def run(is_login = False ,user = None):
         app.raise_for_conn()
         if user != None:
-            app.add_user(user)
+            app.add_user(user, is_login)
             
         threading.Thread(target=app.load_channels, daemon=True).start()
         app.run()

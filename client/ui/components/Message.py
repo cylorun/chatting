@@ -4,8 +4,12 @@ class Message(Frame):
     def __init__(self, parent, message, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.configure(padx=5,pady=5,borderwidth=2, relief="solid")
+        content = message['content']
+        chunked_content = [content[i:i+80] for i in range(0, len(content), 80)]
+        formatted_content = '\n'.join(chunked_content)
+        message['content'] = formatted_content
         self.message_data = message
-        
+
         self.user_data = self.message_data['owner']
         self.date = self.epoch_to_datetime(self.message_data['date'])
         

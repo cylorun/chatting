@@ -1,7 +1,7 @@
 import os, json
 
 class Creds:
-    cred_file = os.path.join(os.getcwd(), 'client','user', 'users.json')
+    cred_file = os.path.join(os.getcwd(),'user', 'users.json')
 
     @staticmethod
     def read() -> list:

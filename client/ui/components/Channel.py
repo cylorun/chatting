@@ -18,7 +18,7 @@ class Channel(Frame):
                     'password' : tmp_user.get_password(),
                     'email' : tmp_user.get_email()}
         
-        ClickableImage(self, on_close, os.path.join(os.getcwd(),'client','ui','x_button.png')).pack(side=TOP, anchor=E)
+        ClickableImage(self, on_close, os.path.join(os.getcwd(),'ui','x_button.png')).pack(side=TOP, anchor=E)
         self.scroll_frame = Frame(self)
         self.input_frame = Frame(self)
         self.label = Label(self)
