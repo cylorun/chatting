@@ -14,11 +14,12 @@ CREATE TABLE messages(message_id INTEGER PRIMARY KEY AUTOINCREMENT,
 CREATE TABLE channels(channel_id INTEGER PRIMARY KEY AUTOINCREMENT,
                         date INTEGER,
                         name VARCHAR(255),
-                        password VARCHAR(255)
+                        password VARCHAR(255),
+                        user_id INTEGER  --owner
                         );
 
 
-
+DROP TABLE channels
 
 
 
@@ -81,9 +82,9 @@ INSERT INTO messages (user_id, channel_id, content) VALUES
 (12, 3, 'Message from user 12 in Channel 3.'),
 (18, 3, 'Hello, it''s user 18 in Channel 3.');
 
-INSERT INTO channels (date, name, password) VALUES
-(1643758880, 'TEst RoomM OnE', NULL),
-(1643738880, 'TEst RoomM DOS','wassy'),
-(1643733380, 'TEst RoomM THRE!!!!!!!!','passy');
+INSERT INTO channels (date, name, password, user_id) VALUES
+(1643758880, 'TEst RoomM OnE', NULL, 12),
+(1643738880, 'TEst RoomM DOS','wassy',23),
+(1643733380, 'TEst RoomM THRE!!!!!!!!','passy',2);
 
 

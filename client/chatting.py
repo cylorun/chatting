@@ -15,9 +15,9 @@ class Chatterino:
         self.user = user
         self.root = Tk()
         self.root.title('Lokaverk')    
-        self.root.geometry('600x700')
+        self.root.geometry('600x650')
         self.max_retries = 5
-        self.channel_json = f'{os.getcwd()}\\client\\ui\\channels.json' # contains previously opened channels
+        self.channel_json = os.path.join(os.getcwd(),'client','ui','channels.json') # contains previously opened channels
         self.notebook = ttk.Notebook(self.root)
         self.menu = ToolMenu(self)
         
@@ -94,7 +94,18 @@ class Chatterino:
         else:
             messagebox.showwarning('Warning', f"Failed to add channel. Status code: {res.status_code}")
 
-
+    def create_channel(self, data):
+        try:
+            name = data['name']
+            password = data['password']
+        except Exception as e:
+            print(e)
+            pass
+        owner = Creds.get_active()['user_id']
+        res = requests.post(f'{host.HOSTNAME}/api/channel/new', json={"name":name, "password":password,"user_id":owner},
+                        headers={'Content-Type': 'application/json'})
+        self.add_channel(res.json()['name'])
+    
     def remove_channel(self, channel):
         for w in self.notebook.winfo_children():
             if w.channel_info['channel_id'] == channel.channel_info['channel_id']:

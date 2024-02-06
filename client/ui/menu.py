@@ -24,9 +24,5 @@ class ToolMenu(Menu):
         
         channel_menu = Menu(self, tearoff=0)
         channel_menu.add_command(label='Add channel', command=lambda: ChannelForm(self.app.add_channel))
-        channel_menu.add_command(label="Create channel")
+        channel_menu.add_command(label="Create channel", command=lambda: MakeChannelForm(self.app.create_channel))
         self.add_cascade(label="Channel",menu=channel_menu)
-
-
-        
-    
