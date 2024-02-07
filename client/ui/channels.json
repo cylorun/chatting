@@ -1,4 +1,8 @@
 {
-  "channels": [],
-  "last": 8
+  "channels": [
+    {
+      "channel_id": 9
+    }
+  ],
+  "last": 2
 }
