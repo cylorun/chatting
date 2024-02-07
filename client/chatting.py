@@ -6,7 +6,7 @@ from user.User import User
 from user.Creds import Creds
 from ui.components.Form import SignIn, Login
 from ui.menu import ToolMenu
-
+from util.logging import Logging
 import host
 import requests, sys, os, json, threading
 
@@ -47,7 +47,8 @@ class Chatterino:
         for i in range(self.max_retries,0,-1):
             if self.server_on():
                 return 
-            print(f'Could not connect to the server, trying {i} more times.')
+            Logging.error(f'Could not connect to the server, trying {i} more times.')
+        Logging.error('Failed to connect to the server, quitting...')
         messagebox.showerror("Server Error","Could not connect to the server")
         sys.exit(1)
     
@@ -137,6 +138,7 @@ class Chatterino:
             self.user = User.get_instance(user_data)
             Creds.add(user_data)
         elif req.status_code == 402:
+            Logging.warn('Login failed, wrong credentials')
             messagebox.showwarning('Login failed','Password or username incorrect')
 
     def get_active_channel(self):

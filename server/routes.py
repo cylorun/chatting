@@ -127,5 +127,5 @@ class App:
     
     def run(self, port = 25565):
         Logging.info(f'localhost:{port}')
-        self.app.run(debug=True,host='0.0.0.0', port=port)
+        self.app.run(debug=True, host='0.0.0.0', port=port)
 

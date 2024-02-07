@@ -1,3 +1,6 @@
+nginx -s reload  
+
+
 400 = error parsing data
 200 = success
 201 = online
