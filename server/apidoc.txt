@@ -1,5 +1,7 @@
-nginx -s reload  
-
+python server.py
+sudo systemctl stop apache2 (might be needed) 
+sudo systemctl start nginx 
+ngrok http 8080
 
 400 = error parsing data
 200 = success
