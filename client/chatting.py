@@ -29,11 +29,12 @@ class Chatterino:
 
     def run(self):
         self.root.protocol("WM_DELETE_WINDOW", self.exit)
-        with open(self.channel_json, 'r') as file:
-            last_id = json.load(file)['last']
-        last_channel = [c for c in self.notebook.winfo_children() if c.channel_info == last_id]
-        if last_channel:
-            self.notebook.select(last_channel)
+        if os.path.exists(self.channel_json):
+            with open(self.channel_json, 'r') as file:
+                last_id = json.load(file)['last']
+                last_channel = [c for c in self.notebook.winfo_children() if c.channel_info == last_id]
+                if last_channel:
+                    self.notebook.select(last_channel)
         self.root.mainloop()
     
     def server_on(self):
@@ -53,18 +54,19 @@ class Chatterino:
         sys.exit(1)
     
     def load_channels(self):
-        with open(self.channel_json) as file:
-            data = json.load(file)
-            loaded = self.get_loaded_channels()
-            for channel in data['channels']:
-                try:
-                    if not channel['channel_id'] in loaded:
-                        c = Channel(self.notebook, channel['channel_id'], self.remove_channel)
-                        c.wait_for_info()
-                        self.notebook.add(c, text=c.channel_info['name'])
-                except Exception as e:
-                    pass
-    
+        if os.path.exists(self.channel_json):
+            with open(self.channel_json) as file:
+                data = json.load(file)
+                loaded = self.get_loaded_channels()
+                for channel in data['channels']:
+                    try:
+                        if not channel['channel_id'] in loaded:
+                            c = Channel(self.notebook, channel['channel_id'], self.remove_channel)
+                            c.wait_for_info()
+                            self.notebook.add(c, text=c.channel_info['name'])
+                    except Exception as e:
+                        pass
+        
     def get_loaded_channels(self):
         return [str(k.channel_id) for k in self.notebook.winfo_children() ]
     
@@ -82,13 +84,16 @@ class Chatterino:
                 c.wait_for_info()
                 self.notebook.add(c, text=c.channel_info['name'])
                 self.notebook.select(c)
-                if not res_json[0]['channel_id'] in self.all_channel_ids():
-                    with open(self.channel_json, 'r') as file:
-                        data = json.load(file)
-                        data['channels'].append({'channel_id': res_json[0]['channel_id']})
-
-                    with open(self.channel_json, 'w') as file:
-                        json.dump(data, file,indent=2)
+                if self.all_channel_ids() == None or not res_json[0]['channel_id'] in self.all_channel_ids():
+                    if os.path.exists(self.channel_json):
+                        with open(self.channel_json, 'r') as file:
+                            data = json.load(file)
+                            data['channels'].append({'channel_id': res_json[0]['channel_id']})
+                            with open(self.channel_json, 'w') as file:
+                                json.dump(data, file, indent=2)
+                    else:
+                        with open(self.channel_json, 'w') as file:
+                            json.dump({'channel_id': res_json[0]['channel_id']}, file, indent=2)
 
             except json.decoder.JSONDecodeError:
                 messagebox.showwarning('Warning', 'Invalid JSON in the response.')
@@ -96,8 +101,10 @@ class Chatterino:
             messagebox.showwarning('Warning', f"Failed to add channel. Status code: {res.status_code}")
     
     def all_channel_ids(self):
-        with open(self.channel_json) as file:
-            return [i for i in json.load(file)['channels']]
+        if os.path.exists(self.channel_json):
+            with open(self.channel_json) as file:
+                return [i for i in json.load(file)['channels']]
+        return None
         
     def create_channel(self, data):
         try:

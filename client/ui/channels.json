@@ -1,11 +1,3 @@
 {
-  "channels": [
-    {
-      "channel_id": 9
-    },
-    {
-      "channel_id": 11
-    }
-  ],
-  "last": 11
+  "channel_id": 12
 }
