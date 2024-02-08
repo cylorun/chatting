@@ -26,6 +26,8 @@ class Chatterino:
 
     def log_out(self):
         Creds.remove(User.get_instance().to_dict())
+        messagebox.showinfo('Restart needed','Please restart the application')        
+
 
     def run(self):
         self.root.protocol("WM_DELETE_WINDOW", self.exit)

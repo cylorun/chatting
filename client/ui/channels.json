@@ -2,6 +2,9 @@
   "channels": [
     {
       "channel_id": 9
+    },
+    {
+      "channel_id": 2
     }
   ]
 }

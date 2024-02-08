@@ -76,7 +76,7 @@ class Login(Toplevel):
         SignIn(self.callback, *args, **kwargs)
         self.destroy()
 
-class ChannelForm(Toplevel):
+class JoinChannelForm(Toplevel):
     def __init__(self,callback, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.callback = callback
