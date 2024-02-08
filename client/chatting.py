@@ -29,12 +29,6 @@ class Chatterino:
 
     def run(self):
         self.root.protocol("WM_DELETE_WINDOW", self.exit)
-        if os.path.exists(self.channel_json):
-            with open(self.channel_json, 'r') as file:
-                last_id = json.load(file)['last']
-                last_channel = [c for c in self.notebook.winfo_children() if c.channel_info == last_id]
-                if last_channel:
-                    self.notebook.select(last_channel)
         self.root.mainloop()
     
     def server_on(self):
@@ -66,7 +60,10 @@ class Chatterino:
                             self.notebook.add(c, text=c.channel_info['name'])
                     except Exception as e:
                         pass
-        
+        else:
+            with open(self.channel_json, 'w+') as f:
+                json.dump({'channels':[]}, f, indent=2)
+
     def get_loaded_channels(self):
         return [str(k.channel_id) for k in self.notebook.winfo_children() ]
     
@@ -156,14 +153,6 @@ class Chatterino:
             return None
     
     def exit(self):
-        with open(self.channel_json, 'r') as file:
-            data = json.load(file)
-            if len(data) >1 and self.get_active_channel() != None:
-                data['last'] = self.get_active_channel().channel_info['channel_id']
-
-        with open(self.channel_json, 'w') as file:
-            json.dump(data, file, indent=2)
-
         self.root.destroy()
         sys.exit(1)
             

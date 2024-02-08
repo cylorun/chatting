@@ -1,6 +1,9 @@
 python server.py
+
 sudo systemctl stop apache2 (might be needed) 
 sudo systemctl start nginx 
+sudo systemctl restart nginx  (maybe)
+
 ngrok http 8080
 
 400 = error parsing data
