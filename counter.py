@@ -1,7 +1,7 @@
 import os
 def count_lines(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
-        return sum(1 for line in file)
+        return len(file.readlines())
 
 def search_and_count_lines(root_directory):
     t = 0

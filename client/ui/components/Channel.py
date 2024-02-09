@@ -66,6 +66,7 @@ class Channel(Frame):
     def load_content(self, messages: list):
         messages.sort(key=lambda x: x['message_id'], reverse=True)
         self.clear_frame(self.message_frame)
+        # self.message_canvas.configure(scrollregion=(0, 0, 550, len(messages)*50))
         for message in messages:
             Message(self.message_frame, message=message).pack(side=BOTTOM, anchor=SW)
 
@@ -74,7 +75,6 @@ class Channel(Frame):
             threading.Thread(target=lambda:requests.post(f'{host.HOSTNAME}/api/send_msg', json=message,
                                 headers={'Content-Type': 'application/json'}).json(), daemon=True).start()
             self.message_entry.delete(0,END)
-            # self.get_channel_info(self.reload)
 
 
     def clear_frame(self, frame):

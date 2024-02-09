@@ -2,3 +2,4 @@ __pycache__
 /server/nginx-1.24.0/logs/
 /server/nginx-1.24.0/docs/
 *.json
+*.db

@@ -79,7 +79,7 @@ class App:
             channel = {"messages":[],"channel":{}}
             for message in self.messages:
                 if message['channel_id'] == channel_id:
-                    message['owner'] = self.user_from_id(message['user_id'])
+                    message['owner'] = {'name' : self.user_from_id(message['user_id'])['name']}
                     channel['messages'].append(message)
             channel['channel'] = self.data_base.select(f'SELECT * FROM channels WHERE channel_id = {channel_id}')
             return jsonify(channel)
