@@ -18,8 +18,17 @@ CREATE TABLE channels(channel_id INTEGER PRIMARY KEY AUTOINCREMENT,
                         user_id INTEGER  --owner
                         );
 
+CREATE TABLE files(file_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    date INTEGER,
+                    file BLOB);
+
+
+CREATE TABLE messageFile(message_id INTEGER,
+                            file_id INTEGER);
+-- INSERT INTO messageImage (message_id, file_id) VALUES (?,?) | (cursor.lastrowid, cursor.lastlastrowid)
 
 DROP TABLE channels
+DROP TABLE messageImage
 
 
 

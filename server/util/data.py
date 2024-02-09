@@ -18,7 +18,7 @@ class Data:
         
         return self.data
 
-    def insert(self, query: str, values: tuple) -> bool:
+    def insert(self, query: str, values: tuple) -> int:
         db = self.get_db()
         try:
             cursor = db.cursor()
@@ -26,12 +26,11 @@ class Data:
             db.commit()
             cursor.close()
             db.close()
-            
-            return True
+            return cursor.lastrowid
         except Exception as e:
             print(e)
-            return False
-        
+            pass
+
     def select(self, query: str):
         db = self.get_db()
     

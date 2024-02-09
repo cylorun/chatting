@@ -15,6 +15,11 @@ class App:
         def get_users():
             return self.users
 
+        @self.app.route('/api/media/upload', methods=['POST'])
+        def media_upload():
+            data = request.get_json()
+
+
         @self.app.route('/api/send_msg', methods=['POST'])
         def send_msg():
             data = request.get_json()
@@ -22,11 +27,19 @@ class App:
                 user_id = data['user_id']
                 channel_id = data['channel_id']
                 content = data['content']
+                file = ['files']
             except Exception as e:
                 return jsonify({'Error':e}), 400
             
-            self.data_base.insert("INSERT INTO messages (user_id, channel_id, content, date) VALUES (?,?,?,?)",(user_id, channel_id, content, int(time.time())))
+            message_id = self.data_base.insert("INSERT INTO messages (user_id, channel_id, content, date) VALUES (?,?,?,?)",(user_id, channel_id, content, int(time.time())))
             self.load_data()
+            if file != None:
+                with open(file,'rb') as f:
+                    file_data = f.read()
+                file_id = self.data_base.insert("INSERT INTO files (date, file) VALUES (?,?)",(int(time.time()), file_data))
+                self.data_base.insert("INSERT INTO messageFile (message_id, file_id) VALUES (?,?)", (message_id, file_id))
+
+                pass
             return jsonify({'Success':200}), 200 
         
         @self.app.route('/api/register',methods=['POST'])
