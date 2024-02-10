@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import filedialog
 import requests, host, threading, time, os
 from ui.components.Message import Message
 from ui.components.ClickableImage import ClickableImage
@@ -43,6 +44,9 @@ class Channel(Frame):
                                                                     "content": self.message_var.get()}))
         self.message_entry = Entry(self.input_frame, textvariable=self.message_var)
 
+        self.upload_button = ClickableImage(self.input_frame,on_click= lambda e: self.upload_file(), src=os.path.join(os.getcwd(),'ui','upload_button.png'))
+
+        self.upload_button.pack(side=RIGHT)
         self.send_button.pack(side=RIGHT)
         self.message_entry.pack(side=LEFT)
         self.input_frame.pack(side=BOTTOM, anchor=SW)
@@ -56,8 +60,12 @@ class Channel(Frame):
             self.message_canvas.yview_scroll(1, "units")
             
     def on_info(self, info):
-        self.channel_info = info['channel'][0]
-        self.label.configure(text=self.channel_info['name'], bg='red', fg='white', font=('Helvetica', 16))
+        # print(info['channel'])
+        if info['channel'] != None or len(info['channel']) == 0:
+            self.channel_info = info['channel'][0]  # WHY DOES THIS CAUSE A FUCKING INDEX ERRROR BUT IT STILL FUCKING SUCCESSFULLY INDEXES IT????>?>???¬?¬?¬??¬???!?!?!??!
+            self.label.configure(text=self.channel_info['name'], bg='red', fg='white', font=('Helvetica', 16))
+            print(self.channel_info)
+
     
     def wait_for_info(self):
         while self.channel_info == {}:
@@ -72,14 +80,17 @@ class Channel(Frame):
 
     def send_message(self, message):
         if message['content'].strip() != '':
-            threading.Thread(target=lambda:requests.post(f'{host.HOSTNAME}/api/send_msg', json=message,
+            threading.Thread(target=lambda: requests.post(f'{host.HOSTNAME}/api/send_msg', json=message,
                                 headers={'Content-Type': 'application/json'}).json(), daemon=True).start()
             self.message_entry.delete(0,END)
+    
+    def upload_file(self):
+        file = filedialog.askopenfilename(filetypes=['png','jpeg','gif'])
 
 
     def clear_frame(self, frame):
-        for f in frame.winfo_children():
-            f.destroy()
+        for child in frame.winfo_children():
+            child.destroy()
 
     def get_channel_info(self, callback):  # requests from api slow asf basically and really inconsistent speed wise
             def make_request():

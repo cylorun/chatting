@@ -27,7 +27,7 @@ class App:
                 user_id = data['user_id']
                 channel_id = data['channel_id']
                 content = data['content']
-                file = ['files']
+                file = ['file']
             except Exception as e:
                 return jsonify({'Error':e}), 400
             

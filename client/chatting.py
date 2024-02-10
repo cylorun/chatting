@@ -153,7 +153,7 @@ class Chatterino:
             return self.notebook.winfo_children()[idx]
         except Exception:
             return None
-    
+
     def exit(self):
         self.root.destroy()
         sys.exit(1)
@@ -175,4 +175,6 @@ if __name__ == '__main__':
         app.user = User.get_instance(Creds.get_active())
         run()
     else:
+        app.root.withdraw()
         SignIn(callback=run).mainloop()
+        app.root.deiconify()
