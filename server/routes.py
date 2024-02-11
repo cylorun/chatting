@@ -13,12 +13,24 @@ class App:
         
         @self.app.route('/api/users', methods=['GET'])
         def get_users():
-            return self.users
+            if self.users:
+                return self.users
+            return []
 
         @self.app.route('/api/media/upload', methods=['POST'])
         def media_upload():
             data = request.get_json()
+            try:
+                file = data['file']
+            except Exception:
+                return jsonify('Bad request'), 401
+            
+            if file != None:
+                with open(file,'rb') as f:
+                    file_data = f.read()
 
+                file_id = self.data_base.insert("INSERT INTO files (date, file) VALUES (?,?)",(int(time.time()), file_data))
+                # self.data_base.insert("INSERT INTO messageFile (message_id, file_id) VALUES (?,?)", (message_id, file_id))
 
         @self.app.route('/api/send_msg', methods=['POST'])
         def send_msg():
@@ -27,20 +39,13 @@ class App:
                 user_id = data['user_id']
                 channel_id = data['channel_id']
                 content = data['content']
-                file = ['file']
             except Exception as e:
                 return jsonify({'Error':e}), 400
             
             message_id = self.data_base.insert("INSERT INTO messages (user_id, channel_id, content, date) VALUES (?,?,?,?)",(user_id, channel_id, content, int(time.time())))
             self.load_data()
-            if file != None:
-                with open(file,'rb') as f:
-                    file_data = f.read()
-                file_id = self.data_base.insert("INSERT INTO files (date, file) VALUES (?,?)",(int(time.time()), file_data))
-                self.data_base.insert("INSERT INTO messageFile (message_id, file_id) VALUES (?,?)", (message_id, file_id))
-
-                pass
-            return jsonify({'Success':200}), 200 
+            
+            return jsonify("Uploaded message successfully!"), 200 
         
         @self.app.route('/api/register',methods=['POST'])
         def register():
@@ -83,10 +88,11 @@ class App:
                 return jsonify({"error": "Channel not found"}), 404
 
             # If the channel exists, retrieve messages
-            for message in self.messages:
-                if message['channel_id'] == channel_id:
-                    message['owner'] = {'name': self.user_from_id(message['user_id'])['name']}
-                    channel['messages'].append(message)
+            if self.messages:
+                for message in self.messages:
+                    if message['channel_id'] == channel_id:
+                        message['owner'] = {'name': self.user_from_id(message['user_id'])['name']}
+                        channel['messages'].append(message)
 
             channel['channel'] = channel_data
             return jsonify(channel), 200
@@ -107,14 +113,17 @@ class App:
             return jsonify({'Error':'Failed to insert data into db'}), 400
         
 
-        @self.app.route('/api/channel_name', methods=['POST'])
+        @self.app.route('/api/channel_name', methods=['POST']) # returns a list of all channels(data) which names contain the "name" key
         def channel_name():
             data = request.get_json()
             try:
                 name = data['name']
             except Exception  as e:
-                return jsonify({'Error':e}), 400
-            return self.data_base.select(f"SELECT * FROM channels WHERE name LIKE '%{name}%'")
+                return jsonify({'Error':e}), 401 # bad request
+            name = self.data_base.select(f"SELECT * FROM channels WHERE name LIKE '%{name}%'")
+            if not name:
+                return jsonify("Error, channel not found"),404
+            return jsonify(name), 200
         
         @self.app.route('/api/status', methods=['GET'])
         def status():
@@ -130,9 +139,10 @@ class App:
 
 
     def user_from_id(self, user_id):
-        for user in self.users:
-            if user_id == user['user_id']:
-                return user
+        if self.users:
+            for user in self.users:
+                if user_id == user['user_id']:
+                    return user
         return {"date":	None,
                 "email"	:None,
                 "name"	:'DeletedUser',

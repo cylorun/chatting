@@ -3,7 +3,7 @@ from tkinter import messagebox
 from tkinter import ttk
 from ui.components.Channel import Channel
 from user.User import User
-from client.user.UserManager import UserManager
+from user.UserManager import UserManager
 from ui.components.Form import SignIn, Login
 from ui.menu import ToolMenu
 from util.logging import Logging
@@ -17,8 +17,7 @@ class Chatterino:
         self.root = Tk()
         self.root.title('Lokaverk')    
         self.root.geometry('600x650')
-        self.max_retries = 5
-        self.channel_json = os.path.join(os.getcwd(),'ui','channels.json') # contains previously opened channels
+        self.max_retries = 5 
         self.notebook = ttk.Notebook(self.root)
         self.menu = ToolMenu(self)
         
@@ -51,61 +50,37 @@ class Chatterino:
         sys.exit(1)
     
     def load_channels(self):
-        if os.path.exists(self.channel_json):
-            with open(self.channel_json) as file:
-                data = json.load(file)
-                loaded = self.get_loaded_channels()
-                for channel in data['channels']:
-                    try:
-                        if not channel['channel_id'] in loaded:
-                            c = Channel(self.notebook, channel['channel_id'], self.remove_channel)
-                            c.wait_for_info()
-                            self.notebook.add(c, text=c.channel_info['name'])
-                    except Exception as e:
-                        pass
+        if os.path.exists(ChannelManager.channel_json):
+            data = ChannelManager.get_json()
+            loaded = self.get_loaded_channels()
+            for channel in data['channels']:
+                try:
+                    if not channel['channel_id'] in loaded:
+                        c = Channel(self.notebook, channel['channel_id'], self.remove_channel)
+                        c.wait_for_info()
+                        self.notebook.add(c, text=c.channel_info['name'])
+                except Exception as e:
+                    Logging.error(e)
         else:
-            with open(self.channel_json, 'w+') as f:
-                json.dump({'channels':[]}, f, indent=2)
+            ChannelManager.create_json() # is this even needed lol
 
     def get_loaded_channels(self):
         return [str(k.channel_id) for k in self.notebook.winfo_children() ]
     
     def add_channel(self, channel_name):
-        res = requests.post(f'{host.HOSTNAME}/api/channel_name', json={'name': channel_name},
-                            headers={'Content-Type': 'application/json'})
-        if res.status_code == 200:
-            try:
-                res_json = res.json()
-                if len(res_json) == 0:
-                    messagebox.showwarning('Warning', "Channel not found :/")
-                    return
+        data = ChannelManager.search_from_name(channel_name)
+        if not data:
+            messagebox.showwarning('Warning', "Channel not found :/")
+            return
 
-                c = Channel(self.notebook, res_json[0]['channel_id'], self.remove_channel)
-                c.wait_for_info()
-                self.notebook.add(c, text=c.channel_info['name'])
-                self.notebook.select(c)
-                if self.all_channel_ids() == None or not res_json[0]['channel_id'] in self.all_channel_ids():
-                    if os.path.exists(self.channel_json):
-                        with open(self.channel_json, 'r') as file:
-                            data = json.load(file)
-                            data['channels'].append({'channel_id': res_json[0]['channel_id']})
-                            with open(self.channel_json, 'w') as file:
-                                json.dump(data, file, indent=2)
-                    else:
-                        with open(self.channel_json, 'w') as file:
-                            json.dump({'channel_id': res_json[0]['channel_id']}, file, indent=2)
+        channel = Channel(self.notebook, data[0]['channel_id'], self.remove_channel)
+        channel.wait_for_info()
+        self.notebook.add(channel, text=channel.channel_info['name'])
+        self.notebook.select(channel)
 
-            except json.decoder.JSONDecodeError:
-                messagebox.showwarning('Warning', 'Invalid JSON in the response.')
-        else:
-            messagebox.showwarning('Warning', f"Failed to add channel. Status code: {res.status_code}")
-    
-    def all_channel_ids(self):
-        if os.path.exists(self.channel_json):
-            with open(self.channel_json) as file:
-                return [i for i in json.load(file)['channels']]
-        return None
-        
+        ChannelManager.add_channel(data[0]['channel_id'])
+
+
     def create_channel(self, data):
         try:
             name = data['name']
@@ -120,16 +95,9 @@ class Chatterino:
     
     def remove_channel(self, channel):
         for w in self.notebook.winfo_children():
-            if w.channel_info['channel_id'] == channel.channel_info['channel_id']:
+            if w.channel_id == channel.channel_id:
                 w.destroy()
-
-        with open(self.channel_json, 'r') as file:
-            data = json.load(file)
-
-        updated_data = [c for c in data['channels'] if c['channel_id'] != channel.channel_info['channel_id']]
-        data['channels'] = updated_data
-        with open(self.channel_json, 'w') as file:
-            json.dump(data, file, indent=2)
+        ChannelManager.remove_channel(channel.channel_id)
 
         
     def add_user(self, user, is_login):

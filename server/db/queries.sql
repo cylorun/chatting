@@ -27,8 +27,13 @@ CREATE TABLE messageFile(message_id INTEGER,
                             file_id INTEGER);
 -- INSERT INTO messageImage (message_id, file_id) VALUES (?,?) | (cursor.lastrowid, cursor.lastlastrowid)
 
-DROP TABLE channels
-DROP TABLE messageImage
+DROP TABLE channels 
+DROP TABLE messages
+DROP TABLE files
+DROP TABLE messageFile
+DROP TABLE users
+
+
 
 
 

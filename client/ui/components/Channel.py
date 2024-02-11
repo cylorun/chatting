@@ -6,6 +6,7 @@ from ui.components.Message import Message
 from ui.components.ClickableImage import ClickableImage
 from util.logging import Logging
 from user.User import User
+from util.ChannelManager import ChannelManager
 
 class Channel(Frame):
     def __init__(self, parent, id, on_close, *args, **kwargs):
@@ -15,13 +16,14 @@ class Channel(Frame):
         self.channel_info = {}
         self.messages = []
         self.tmp_messages = []
+        self.on_close = on_close
         tmp_user = User.get_instance()
         self.user = {'name' : tmp_user.get_name(),
                     'user_id' : tmp_user.get_id(),
                     'password' : tmp_user.get_password(),
                     'email' : tmp_user.get_email()}
         
-        ClickableImage(self, on_close, os.path.join(os.getcwd(),'ui','x_button.png')).pack(side=TOP, anchor=E)
+        ClickableImage(self, on_close, os.path.join(os.getcwd(),'assets','images','x_button.png')).pack(side=TOP, anchor=E)
         self.scroll_frame = Frame(self)
         self.input_frame = Frame(self)
         self.label = Label(self)
@@ -46,7 +48,7 @@ class Channel(Frame):
                                                                     "content": self.message_var.get()}))
         self.message_entry = Entry(self.input_frame, textvariable=self.message_var)
 
-        self.upload_button = ClickableImage(self.input_frame,on_click= lambda e: self.upload_file(), src=os.path.join(os.getcwd(),'ui','upload_button.png'))
+        self.upload_button = ClickableImage(self.input_frame,on_click= lambda e: self.upload_file(), src=os.path.join(os.getcwd(),'assets','images','upload_button.png'))
 
         self.upload_button.pack(side=RIGHT)
         self.send_button.pack(side=RIGHT)
@@ -64,7 +66,7 @@ class Channel(Frame):
     def on_info(self, res = None):
         if res.status_code == 404:
             messagebox.showwarning('404 Error',f'Channel with id:{self.channel_id} not found')
-            self.destroy()
+            self.on_close(self)
         else:
             data = res.json()
             self.channel_info = data['channel'][0] 
@@ -89,8 +91,11 @@ class Channel(Frame):
             self.message_entry.delete(0,END)
     
     def upload_file(self):
-        file = filedialog.askopenfilename(filetypes=['png','jpeg','gif'])
-
+        file_path = filedialog.askopenfilename(filetypes=[('Image files', '*.png;*.jpeg;*.gif')])
+        if file_path:
+            print("Selected file:", file_path)
+        else:
+            print("No file selected.")
 
     def clear_frame(self, frame):
         for child in frame.winfo_children():
