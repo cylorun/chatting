@@ -1,8 +1,10 @@
 from tkinter import *
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
+
 import requests, host, threading, time, os
 from ui.components.Message import Message
 from ui.components.ClickableImage import ClickableImage
+from util.logging import Logging
 from user.User import User
 
 class Channel(Frame):
@@ -14,7 +16,7 @@ class Channel(Frame):
         self.messages = []
         self.tmp_messages = []
         tmp_user = User.get_instance()
-        self.user ={'name' : tmp_user.get_name(),
+        self.user = {'name' : tmp_user.get_name(),
                     'user_id' : tmp_user.get_id(),
                     'password' : tmp_user.get_password(),
                     'email' : tmp_user.get_email()}
@@ -59,12 +61,14 @@ class Channel(Frame):
         if event.delta < 0:
             self.message_canvas.yview_scroll(1, "units")
             
-    def on_info(self, info):
-        # print(info['channel'])
-        if info['channel'] != None or len(info['channel']) == 0:
-            self.channel_info = info['channel'][0]  # WHY DOES THIS CAUSE A FUCKING INDEX ERRROR BUT IT STILL FUCKING SUCCESSFULLY INDEXES IT????>?>???¬?¬?¬??¬???!?!?!??!
+    def on_info(self, res = None):
+        if res.status_code == 404:
+            messagebox.showwarning('404 Error',f'Channel with id:{self.channel_id} not found')
+            self.destroy()
+        else:
+            data = res.json()
+            self.channel_info = data['channel'][0] 
             self.label.configure(text=self.channel_info['name'], bg='red', fg='white', font=('Helvetica', 16))
-            print(self.channel_info)
 
     
     def wait_for_info(self):
@@ -96,12 +100,10 @@ class Channel(Frame):
             def make_request():
                 try:
                     res = requests.get(f'{host.HOSTNAME}/api/channel/{self.channel_id}')
-                    res.raise_for_status()
-                    result = res.json()
                 except Exception as e:
                     raise Exception
 
-                callback(result)
+                callback(res)
 
             thread = threading.Thread(target=make_request)
             thread.start()
@@ -110,11 +112,14 @@ class Channel(Frame):
         self.get_channel_info(self.reload)
         self.after(5000, self.run_tick)
         
-    def reload(self, updated_messages):
-        updated_messages = updated_messages['messages']
-        if len(updated_messages) != len(self.messages):
-            self.messages = updated_messages
-            threading.Thread(target=lambda:self.load_content(self.messages), daemon=True).start()
+    def reload(self, res):
+        if res.status_code == 404:
+            Logging.error('404 Not found, when updating messages')
+        elif res.status_code == 200:
+            data = res.json()['messages']
+            if len(data) != len(self.messages):
+                self.messages = data
+                threading.Thread(target=lambda:self.load_content(self.messages), daemon=True).start()
             
 
 

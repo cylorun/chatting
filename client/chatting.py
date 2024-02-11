@@ -3,10 +3,11 @@ from tkinter import messagebox
 from tkinter import ttk
 from ui.components.Channel import Channel
 from user.User import User
-from user.Creds import Creds
+from client.user.UserManager import UserManager
 from ui.components.Form import SignIn, Login
 from ui.menu import ToolMenu
 from util.logging import Logging
+from util.ChannelManager import ChannelManager
 import host
 import requests, sys, os, json, threading
 
@@ -25,7 +26,7 @@ class Chatterino:
         self.notebook.pack(fill='both', expand=True)
 
     def log_out(self):
-        Creds.remove(User.get_instance().to_dict())
+        UserManager.remove(User.get_instance().to_dict())
         messagebox.showinfo('Restart needed','Please restart the application')        
 
 
@@ -112,7 +113,7 @@ class Chatterino:
         except Exception as e:
             print(e)
             pass
-        owner = Creds.get_active()['user_id']
+        owner = UserManager.get_active()['user_id']
         res = requests.post(f'{host.HOSTNAME}/api/channel/new', json={"name":name, "password":password,"user_id":owner},
                         headers={'Content-Type': 'application/json'})
         self.add_channel(res.json()['name'])
@@ -142,7 +143,7 @@ class Chatterino:
         if req.status_code == 200:
             user_data['active'] = True
             self.user = User.get_instance(user_data)
-            Creds.add(user_data)
+            UserManager.add(user_data)
         elif req.status_code == 402:
             Logging.warn('Login failed, wrong credentials')
             messagebox.showwarning('Login failed','Password or username incorrect')
@@ -171,8 +172,8 @@ if __name__ == '__main__':
 
     app = Chatterino()
     app.raise_for_conn()
-    if Creds.has_active():
-        app.user = User.get_instance(Creds.get_active())
+    if UserManager.has_active():
+        app.user = User.get_instance(UserManager.get_active())
         run()
     else:
         app.root.withdraw()

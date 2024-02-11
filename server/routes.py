@@ -73,17 +73,24 @@ class App:
             else:
                 return jsonify('Login failed'), 402
 
-            
+        
         @self.app.route('/api/channel/<int:channel_id>', methods=['GET'])
         def channel_info(channel_id):
-            channel = {"messages":[],"channel":{}}
+            channel = {"messages": [], "channel": {}}
+
+            channel_data = self.data_base.select(f'SELECT * FROM channels WHERE channel_id = {channel_id}')
+            if not channel_data:
+                return jsonify({"error": "Channel not found"}), 404
+
+            # If the channel exists, retrieve messages
             for message in self.messages:
                 if message['channel_id'] == channel_id:
-                    message['owner'] = {'name' : self.user_from_id(message['user_id'])['name']}
+                    message['owner'] = {'name': self.user_from_id(message['user_id'])['name']}
                     channel['messages'].append(message)
-            channel['channel'] = self.data_base.select(f'SELECT * FROM channels WHERE channel_id = {channel_id}')
-            return jsonify(channel)
-        
+
+            channel['channel'] = channel_data
+            return jsonify(channel), 200
+
 
         @self.app.route('/api/channel/new', methods=['POST'])
         def new_channel():

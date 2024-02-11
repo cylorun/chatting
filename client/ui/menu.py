@@ -1,5 +1,5 @@
 from tkinter import *
-from user.Creds import Creds
+from client.user.UserManager import UserManager
 from user.User import User
 from ui.components.Form import *
 

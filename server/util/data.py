@@ -55,7 +55,11 @@ class Data:
                 
     @staticmethod
     def get_as_dict(cursor):
-        return [dict(zip([column[0] for column in cursor.description], row)) for row in cursor.fetchall()]
+        rows = cursor.fetchall() 
+        if not rows:
+            return None
+        return [dict(zip([column[0] for column in cursor.description], row)) for row in rows]
+
 
 
 
