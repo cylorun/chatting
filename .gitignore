@@ -3,3 +3,4 @@ __pycache__
 /server/nginx-1.24.0/docs/
 *.json
 *.db
+counter.py
