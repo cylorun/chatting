@@ -25,7 +25,7 @@ class UserManager:
         if user not in curr_data:
             data = curr_data
             data.append(user)
-            with open(UserManager.cred_file, 'w') as file:
+            with open(UserManager.cred_file, 'w+') as file:
                 json.dump(data, file, indent=2)
                 
     @staticmethod

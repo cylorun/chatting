@@ -144,6 +144,6 @@ if __name__ == '__main__':
         app.user = User.get_instance(UserManager.get_active())
         run()
     else:
-        app.root.withdraw()
+        # app.root.withdraw()
         SignIn(callback=run).mainloop()
-        app.root.deiconify()
+        # app.root.deiconify()
