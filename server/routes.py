@@ -21,15 +21,13 @@ class App:
         def media_upload():
             data = request.get_json()
             try:
-                file = data['file']
+                file = request.files['file']
+                user_id = data['user_id']
             except Exception:
                 return jsonify('Bad request'), 401
             
-            if file != None:
-                with open(file,'rb') as f:
-                    file_data = f.read()
 
-                file_id = self.data_base.insert("INSERT INTO files (date, file) VALUES (?,?)",(int(time.time()), file_data))
+            file_id = self.data_base.insert("INSERT INTO files (date, file) VALUES (?,?)",(int(time.time()), file.read()))
                 # self.data_base.insert("INSERT INTO messageFile (message_id, file_id) VALUES (?,?)", (message_id, file_id))
 
         @self.app.route('/api/send_msg', methods=['POST'])

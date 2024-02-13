@@ -81,13 +81,12 @@ class Chatterino:
         ChannelManager.add_channel(data[0]['channel_id'])
 
 
-    def create_channel(self, data):
+    def create_channel(self, data):  # will sometimes completely freeze when making a new channel
         try:
             name = data['name']
             password = data['password']
         except Exception as e:
             print(e)
-            pass
         owner = UserManager.get_active()['user_id']
         res = requests.post(f'{host.HOSTNAME}/api/channel/new', json={"name":name, "password":password,"user_id":owner},
                         headers={'Content-Type': 'application/json'})

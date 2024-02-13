@@ -93,7 +93,12 @@ class Channel(Frame):
     def upload_file(self):
         file_path = filedialog.askopenfilename(filetypes=[('Image files', '*.png;*.jpeg;*.gif')])
         if file_path:
-            print("Selected file:", file_path)
+            with open(file_path, 'rb') as f:
+                res =requests.post(f'{host.HOSTNAME}/api/media/upload', json={"user-id":User.get_instance().get_id()},files={"file":f})
+                if res.status_code == 200:
+                    print('paggi')
+                else:
+                    print('ohno')
         else:
             print("No file selected.")
 

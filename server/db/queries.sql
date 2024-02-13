@@ -20,6 +20,7 @@ CREATE TABLE channels(channel_id INTEGER PRIMARY KEY AUTOINCREMENT,
 
 CREATE TABLE files(file_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     date INTEGER,
+                    user_id,       --owner
                     file BLOB);
 
 
