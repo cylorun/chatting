@@ -2,3 +2,4 @@
 - encrypt everything, both server and client side.
 - allow file/image uploads.
 - style it...
+- show message when someone leaves/joins a channel
