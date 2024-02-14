@@ -1,0 +1,4 @@
+- make Form.py less messy and have just one class that takes in a bunch of fields or something.
+- encrypt everything, both server and client side.
+- allow file/image uploads.
+- style it...
