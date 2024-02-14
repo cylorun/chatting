@@ -4,7 +4,7 @@ from tkinter import ttk
 from ui.components.Channel import Channel
 from user.User import User
 from user.UserManager import UserManager
-from ui.components.Form import SignIn, Login
+from ui.components.Form import *
 from ui.menu import ToolMenu
 from util.logging import Logging
 from util.ChannelManager import ChannelManager
@@ -143,6 +143,5 @@ if __name__ == '__main__':
         app.user = User.get_instance(UserManager.get_active())
         run()
     else:
-        # app.root.withdraw()
         SignIn(callback=run).mainloop()
-        # app.root.deiconify()
+        # Form(run())

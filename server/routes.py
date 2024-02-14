@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from util.data import Data
 from util.logging import Logging
-import os, time, datetime, random
+import os, time, datetime, random, hashlib
 
 
 class App:
@@ -29,6 +29,7 @@ class App:
 
             file_id = self.data_base.insert("INSERT INTO files (date, file) VALUES (?,?)",(int(time.time()), file.read()))
                 # self.data_base.insert("INSERT INTO messageFile (message_id, file_id) VALUES (?,?)", (message_id, file_id))
+            return jsonify({'Success':'File upload successful'}),200
 
         @self.app.route('/api/send_msg', methods=['POST'])
         def send_msg():
@@ -54,7 +55,7 @@ class App:
                 email = data['email']
             except Exception as e:
                 return jsonify({'Error, bad request':e}), 400
-
+            password = hashlib.sha256(password.encode()).hexdigest()
             if self.data_base.insert('INSERT INTO users (name, email, password, date) VALUES (?,?,?,?)', (name, email, password, int(time.time()))):
                 self.load_data()
                 return jsonify(self.data_base.select(f"SELECT * FROM users WHERE name='{name}' AND email='{email}' AND password='{password}'")[0]), 200
@@ -69,7 +70,7 @@ class App:
                 password = data['password']
             except Exception:
                 pass
-            
+            password = hashlib.sha256(password.encode()).hexdigest()
             u = self.data_base.select(f"SELECT * FROM users WHERE name='{name}' AND password='{password}'")
             if len(u) >=1:
                 return jsonify(u[0]), 200

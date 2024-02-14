@@ -138,3 +138,31 @@ class MakeChannelForm(Toplevel):
             self.destroy()
         else:
             messagebox.showwarning('Missing fields','You did not fill out the required fields.')
+        
+        
+        
+import tkinter as tk
+
+class Form(tk.Toplevel):
+    def __init__(self, call, title, dim, *args, **kw):
+        super().__init__(**kw)
+        self.call = call
+        self.form_fields = args
+        self.title(title)
+        self.geometry(dim)
+        self.create_form()
+
+    def create_form(self):
+        for field in self.form_fields:
+            label = tk.Label(self, text=field)
+            label.pack(side=tk.TOP)
+            entry = tk.Entry(self)
+            entry.pack(side=tk.TOP)
+
+        submit_button = tk.Button(self, text="Submit", command=self.submit_form)
+        submit_button.pack(side=tk.TOP)
+
+    def submit_form(self):
+        values = [entry.get() for entry in self.children.values() if isinstance(entry, tk.Entry)]
+        self.call(*values)
+
