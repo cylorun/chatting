@@ -1,6 +1,6 @@
 from tkinter import *
-from user.UserManager import UserManager
-from user.User import User
+from data.user.UserManager import UserManager
+from data.user.User import User
 from ui.components.Form import *
 
 

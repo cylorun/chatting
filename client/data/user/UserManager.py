@@ -1,4 +1,5 @@
 import os, json
+from data.Dat import Dat
 
 class UserManager:
     cred_file = os.path.join(os.getcwd(),'config', 'users.dat')
@@ -6,8 +7,9 @@ class UserManager:
     @staticmethod
     def read() -> list:
         if os.path.exists(UserManager.cred_file):
-            with open(UserManager.cred_file, 'r') as file:
-                return json.load(file)
+            # with open(UserManager.cred_file, 'r') as file:
+            #     return json.load(file)
+            return json.loads(Dat.read(UserManager.cred_file))
         return []
 
     @staticmethod
@@ -25,8 +27,9 @@ class UserManager:
         if user not in curr_data:
             data = curr_data
             data.append(user)
-            with open(UserManager.cred_file, 'w+') as file:
-                json.dump(data, file, indent=2)
+            # with open(UserManager.cred_file, 'w+') as file:
+            #     json.dump(data, file, indent=2)
+            Dat.write(data, UserManager.cred_file)
                 
     @staticmethod
     def remove(user):
@@ -34,8 +37,9 @@ class UserManager:
         for u in data:
             if u['user_id'] == user['user_id']:
                 data.remove(u)
-        with open(UserManager.cred_file, 'w') as file:
-            json.dump(data, file, indent=2)
+        # with open(UserManager.cred_file, 'w') as file:
+        #     json.dump(data, file, indent=2)
+        Dat.write(data, UserManager.cred_file)
             
     @staticmethod
     def set_active(user_id):
@@ -46,8 +50,9 @@ class UserManager:
             else: 
                 user['active'] = False        
         
-        with open(UserManager.cred_file, 'w') as file:
-                json.dump(users, file, indent=2)
+        # with open(UserManager.cred_file, 'w') as file:
+        #         json.dump(users, file, indent=2)
+        Dat.write(users, UserManager.cred_file)
                 
     @staticmethod
     def has_active():
