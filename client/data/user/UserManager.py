@@ -1,7 +1,7 @@
 import os, json
 
 class UserManager:
-    cred_file = os.path.join(os.getcwd(),'config', 'users.json')
+    cred_file = os.path.join(os.getcwd(),'config', 'users.dat')
 
     @staticmethod
     def read() -> list:

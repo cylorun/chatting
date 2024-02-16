@@ -5,7 +5,7 @@ import requests, host, threading, time, os
 from ui.components.Message import Message
 from ui.components.ClickableImage import ClickableImage
 from util.logging import Logging
-from user.User import User
+from data.user.User import User
 from util.ChannelManager import ChannelManager
 
 class Channel(Frame):

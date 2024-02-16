@@ -3,8 +3,6 @@ import os, json, host, requests
 
 class ChannelManager:
     channel_json = os.path.join(os.getcwd(),'config','channels.json')
-    def __init__(self):
-        pass
     
     @staticmethod
     def create_json():

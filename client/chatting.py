@@ -2,8 +2,8 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
 from ui.components.Channel import Channel
-from user.User import User
-from user.UserManager import UserManager
+from data.user.User import User
+from data.user.UserManager import UserManager
 from ui.components.Form import *
 from ui.menu import ToolMenu
 from util.logging import Logging
