@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 from util.data import Data
 from util.logging import Logging
+from werkzeug.utils import secure_filename
+
 import os, time, datetime, random, hashlib
 
 
@@ -19,13 +21,14 @@ class App:
 
         @self.app.route('/api/media/upload', methods=['POST'])
         def media_upload():
-            data = request.get_json()
+            # data = request.get_json()
+            print(len(request.files))
+            print(request.json)
             try:
                 file = request.files['file']
-                user_id = data['user_id']
+                # user_id = data['user_id']
             except Exception:
                 return jsonify('Bad request'), 401
-            
 
             file_id = self.data_base.insert("INSERT INTO files (date, file) VALUES (?,?)",(int(time.time()), file.read()))
                 # self.data_base.insert("INSERT INTO messageFile (message_id, file_id) VALUES (?,?)", (message_id, file_id))
@@ -128,11 +131,7 @@ class App:
         def status():
             return jsonify({'Up':"200"}), 200
         
-        # @self.app.route('/api/', methods=['POST'])
-        # def
         self.load_data()
-        # curl -X POST -H "Content-Type: application/json" -d "{\"username\":\"John Doe's wife\", \"password\":\"MyWiftUg1yA55F0ck\",\"email\":\"john@doe.com\"}" http://127.0.0.1:25565/api/register     
-
 
 
 

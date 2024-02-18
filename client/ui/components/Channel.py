@@ -91,17 +91,20 @@ class Channel(Frame):
             self.message_entry.delete(0,END)
     
     def upload_file(self):
-        file_path = filedialog.askopenfilename(filetypes=[('Image files', '*.png;*.jpeg;*.gif')])
+        file_path = filedialog.askopenfilename(filetypes=[('Image files', '*.png;*.jpeg;*.gif;*.jpg')])
         if file_path:
             with open(file_path, 'rb') as f:
-                res =requests.post(f'{host.HOSTNAME}/api/media/upload', json={"user-id":User.get_instance().get_id()},files={"file":f})
+                user_id = User.get_instance().get_id()
+                files = {'file': f}
+                res = requests.post(f'{host.HOSTNAME}/api/media/upload', files=files, json={'user_id': user_id}, headers={
+                    'Content-type':'application/json'})
                 if res.status_code == 200:
-                    print('paggi')
+                    print('File upload successful')
                 else:
-                    print('ohno')
+                    print('Failed to upload file')
         else:
             print("No file selected.")
-
+            
     def clear_frame(self, frame):
         for child in frame.winfo_children():
             child.destroy()
