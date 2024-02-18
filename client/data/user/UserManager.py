@@ -7,9 +7,7 @@ class UserManager:
     @staticmethod
     def read() -> list:
         if os.path.exists(UserManager.cred_file):
-            # with open(UserManager.cred_file, 'r') as file:
-            #     return json.load(file)
-            return json.loads(Dat.read(UserManager.cred_file))
+            return Dat.read(UserManager.cred_file)
         return []
 
     @staticmethod
@@ -19,7 +17,6 @@ class UserManager:
             for user in users:
                 if user['active']:
                     return user
-        
 
     @staticmethod
     def add(user):
@@ -27,20 +24,16 @@ class UserManager:
         if user not in curr_data:
             data = curr_data
             data.append(user)
-            # with open(UserManager.cred_file, 'w+') as file:
-            #     json.dump(data, file, indent=2)
             Dat.write(data, UserManager.cred_file)
-                
+
     @staticmethod
     def remove(user):
         data = UserManager.read()
         for u in data:
             if u['user_id'] == user['user_id']:
                 data.remove(u)
-        # with open(UserManager.cred_file, 'w') as file:
-        #     json.dump(data, file, indent=2)
         Dat.write(data, UserManager.cred_file)
-            
+
     @staticmethod
     def set_active(user_id):
         users = UserManager.read()
@@ -49,9 +42,6 @@ class UserManager:
                 user['active'] = True
             else: 
                 user['active'] = False        
-        
-        # with open(UserManager.cred_file, 'w') as file:
-        #         json.dump(users, file, indent=2)
         Dat.write(users, UserManager.cred_file)
                 
     @staticmethod

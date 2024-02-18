@@ -17,7 +17,7 @@ class Dat:
         data = data.decode('utf-8')
         for char in data:
                 res += chr((ord(char) -Dat.CHAR_SHIFT) % 256)  
-        return res.replace("'",'"')
+        return Dat.fix_bools(res.replace("'",'"'))
 
 
     @staticmethod
@@ -27,7 +27,10 @@ class Dat:
         encrypted_data = Dat.encrypt(data)        
         with open(src, 'wb') as f:
             f.write(encrypted_data)
-
+    @staticmethod 
+    def fix_bools(data):
+        return str(data.replace('True','true').replace('False','false'))
+    
     @staticmethod
     def read(src: str) -> dict:
         with open(src, 'rb') as f:
