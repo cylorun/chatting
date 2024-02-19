@@ -3,3 +3,5 @@
 - allow file/image uploads.
 - style it...
 - show message when someone leaves/joins a channel
+- Show options for channsl you could join when joining a channel
+- Form.py cleanup

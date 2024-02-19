@@ -17,6 +17,8 @@ class Chatterino:
         self.root = Tk()
         self.root.title('Lokaverk')    
         self.root.geometry('600x650')
+        self.root.resizable(False, False)
+
         self.max_retries = 5 
         self.notebook = ttk.Notebook(self.root)
         self.menu = ToolMenu(self)
@@ -67,18 +69,14 @@ class Chatterino:
     def get_loaded_channels(self):
         return [str(k.channel_id) for k in self.notebook.winfo_children() ]
     
-    def add_channel(self, channel_name):
-        data = ChannelManager.search_from_name(channel_name)
-        if not data:
-            messagebox.showwarning('Warning', "Channel not found :/")
-            return
+    def add_channel(self, channel_id):
 
-        channel = Channel(self.notebook, data[0]['channel_id'], self.remove_channel)
+        channel = Channel(self.notebook, channel_id, self.remove_channel)
         channel.wait_for_info()
         self.notebook.add(channel, text=channel.channel_info['name'])
         self.notebook.select(channel)
 
-        ChannelManager.add_channel(data[0]['channel_id'])
+        ChannelManager.add_channel(channel_id)
 
 
     def create_channel(self, data):  # will sometimes completely freeze when making a new channel
@@ -90,7 +88,8 @@ class Chatterino:
         owner = UserManager.get_active()['user_id']
         res = requests.post(f'{host.HOSTNAME}/api/channel/new', json={"name":name, "password":password,"user_id":owner},
                         headers={'Content-Type': 'application/json'})
-        self.add_channel(res.json()['name'])
+        
+        self.add_channel(res.json()['channel_id'])
     
     def remove_channel(self, channel):
         for w in self.notebook.winfo_children():

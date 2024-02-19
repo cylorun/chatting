@@ -16,7 +16,6 @@ class ChannelManager:
                 with open(ChannelManager.channel_json, 'r') as file:
                     data = json.load(file)
                     data['channels'].append({'channel_id': id})
-
             else:
                 data = {"channels": [{"channel_id": id}]}
 

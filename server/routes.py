@@ -121,11 +121,12 @@ class App:
             try:
                 name = data['name']
             except Exception  as e:
-                return jsonify({'Error':e}), 401 # bad request
-            name = self.data_base.select(f"SELECT * FROM channels WHERE name LIKE '%{name}%'")
-            if not name:
-                return jsonify("Error, channel not found"),404
-            return jsonify(name), 200
+                return jsonify({'missing params':e}), 401 # bad request
+            channels = self.data_base.select(f"SELECT * FROM channels WHERE name LIKE '%{name}%'")
+            print(channels)
+            if not channels:
+                return jsonify("Error, channel not found"), 201
+            return jsonify(channels), 200
         
         @self.app.route('/api/status', methods=['GET'])
         def status():

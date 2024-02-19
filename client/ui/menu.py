@@ -20,6 +20,7 @@ class ToolMenu(Menu):
         settings_menu.add_command(label='Add user')
         settings_menu.add_separator()
         settings_menu.add_command(label='Log out', command=self.app.log_out)
+        settings_menu.add_command(label='My Profile')
         self.add_cascade(label="Settings", menu=settings_menu)
         
         channel_menu = Menu(self, tearoff=0)
