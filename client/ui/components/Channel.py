@@ -78,7 +78,7 @@ class Channel(Frame):
             time.sleep(.1)
             
     def load_content(self, messages: list):
-        messages.sort(key=lambda x: x['message_id'], reverse=True)
+        messages.sort(key=lambda x: x['date'], reverse=True)
         self.clear_frame(self.message_frame)
         # self.message_canvas.configure(scrollregion=(0, 0, 550, len(messages)*50))
         for message in messages:

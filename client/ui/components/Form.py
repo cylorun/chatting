@@ -84,27 +84,7 @@ class Login(Toplevel):
         SignIn(self.callback, *args, **kwargs)
         self.destroy()
 
-# class JoinChannelForm(Toplevel):
-#     def __init__(self,callback, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.callback = callback
-#         self.geometry('250x150')
-#         # self.resizable(False, False)
 
-#         self.frame = LabelFrame(self,text="Add a channel.")
-#         self.frame.pack(fill=Y, expand=Y)
-#         self.channel_var = StringVar()
-#         self.channel_entry = Entry(self.frame, textvariable=self.channel_var)
-#         self.channel_entry.pack()
-#         self.submit_button = Button(self.frame, text="Add", command=self.on_click)
-#         self.submit_button.pack(side=BOTTOM)
-    
-#     def on_click(self):
-#         if self.channel_var.get():
-#             self.callback(self.channel_var.get())
-#             self.destroy()
-#         else:
-#             messagebox.showwarning('Missing fields','You did not fill out the required fields.')
 class JoinChannelForm(Toplevel):
     def __init__(self, callback, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -133,12 +113,9 @@ class JoinChannelForm(Toplevel):
                                 headers={'Content-Type': 'application/json'})
         self.loading_label.configure(text="")
         
-        print(res.json())
-
         if res.status_code == 200:
             self.channel_list.update(res.json())
         elif res.status_code == 201:
-            print('no channels found')
             self.channel_list.update([])
 
     def on_choice(self, channel_id):

@@ -143,4 +143,3 @@ if __name__ == '__main__':
         run()
     else:
         SignIn(callback=run).mainloop()
-        # Form(run())
