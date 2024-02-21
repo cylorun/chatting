@@ -26,7 +26,7 @@ class Data:
         return self.get_as_dict(cursor)
     
     @staticmethod
-    def get_db(self):
+    def get_db():
         return sqlite3.connect(os.path.join(os.getcwd(),'db','app.db'))
     
 
