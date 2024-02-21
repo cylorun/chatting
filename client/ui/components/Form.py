@@ -113,14 +113,13 @@ class JoinChannelForm(Toplevel):
             res = requests.post(f'{host.HOSTNAME}/api/channel_name', json=payload,
                                     headers={'Content-Type': 'application/json'})
             self.loading_label.configure(text="")
-        except Exception:
-            print('thingy, all good tho i think')
-            pass
         
-        if res.status_code == 200:
-            self.channel_list.update(res.json())
-        elif res.status_code == 201:
-            self.channel_list.update([])
+            if res.status_code == 200:
+                self.channel_list.update(res.json())
+            elif res.status_code == 201:
+                self.channel_list.update([])
+        except Exception: # happens cuz channel_list or loading_label is destroyed
+            pass
 
     def on_choice(self, channel_id):
         self.obs.stop()
