@@ -21,8 +21,8 @@ CREATE TABLE channels(channel_id INTEGER PRIMARY KEY AUTOINCREMENT,
 CREATE TABLE files(file_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name VARCHAR(255),
                     date INTEGER,
-                    user_id,
-                    channel_id,       --owner
+                    user_id INTEGER,
+                    channel_id INTEGER,       --owner
                     data BLOB);
 
 

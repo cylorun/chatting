@@ -108,10 +108,14 @@ class JoinChannelForm(Toplevel):
     
     def update_list(self):
         payload = {"name":self.inp_var.get()}
-        self.loading_label.configure(text="Loading...")
-        res = requests.post(f'{host.HOSTNAME}/api/channel_name', json=payload,
-                                headers={'Content-Type': 'application/json'})
-        self.loading_label.configure(text="")
+        try:
+            self.loading_label.configure(text="Loading...")
+            res = requests.post(f'{host.HOSTNAME}/api/channel_name', json=payload,
+                                    headers={'Content-Type': 'application/json'})
+            self.loading_label.configure(text="")
+        except Exception:
+            print('thingy, all good tho i think')
+            pass
         
         if res.status_code == 200:
             self.channel_list.update(res.json())

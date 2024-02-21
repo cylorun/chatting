@@ -60,20 +60,21 @@ class Chatterino:
                     if not channel['channel_id'] in loaded:
                         c = Channel(self.notebook, channel['channel_id'], self.remove_channel)
                         c.wait_for_info()
-                        self.notebook.add(c, text=c.channel_info['name'])
+                        self.notebook.add(c, text=c.channel_info['channel']['name'])
                 except Exception as e:
                     Logging.error(e)
+                    print('ohno')
         else:
             ChannelManager.create_json() # is this even needed lol
 
     def get_loaded_channels(self):
-        return [str(k.channel_id) for k in self.notebook.winfo_children() ]
+        return [str(k.id) for k in self.notebook.winfo_children() ]
     
     def add_channel(self, channel_id):
 
         channel = Channel(self.notebook, channel_id, self.remove_channel)
         channel.wait_for_info()
-        self.notebook.add(channel, text=channel.channel_info['name'])
+        self.notebook.add(channel, text=channel.channel_info['channel']['name'])
         self.notebook.select(channel)
 
         ChannelManager.add_channel(channel_id)
@@ -93,9 +94,9 @@ class Chatterino:
     
     def remove_channel(self, channel):
         for w in self.notebook.winfo_children():
-            if w.channel_id == channel.channel_id:
+            if w.id == channel.id:
                 w.destroy()
-        ChannelManager.remove_channel(channel.channel_id)
+        ChannelManager.remove_channel(channel.id)
 
         
     def add_user(self, user, is_login):

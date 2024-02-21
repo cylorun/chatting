@@ -3,16 +3,16 @@ from tkinter import filedialog, messagebox
 
 import requests, host, threading, time, os
 from ui.components.Message import Message
+from ui.components.ImageMessage import ImageMessage
 from ui.components.ClickableImage import ClickableImage
 from util.logging import Logging
 from data.user.User import User
-from util.ChannelManager import ChannelManager
 
 class Channel(Frame):
     def __init__(self, parent, id, on_close, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
-        self.channel_id = id
+        self.id = id
         self.channel_info = {}
         self.messages = []
         self.tmp_messages = []
@@ -44,7 +44,7 @@ class Channel(Frame):
 
         self.message_var = StringVar()
         self.send_button = Button(self.input_frame, text="Send", font=('Arial', 8, 'italic'),
-                                command=lambda: self.send_message({"user_id": self.user['user_id'], "channel_id": self.channel_id,
+                                command=lambda: self.send_message({"user_id": self.user['user_id'], "channel_id": self.id,
                                                                     "content": self.message_var.get()}))
         self.message_entry = Entry(self.input_frame, textvariable=self.message_var)
 
@@ -63,26 +63,33 @@ class Channel(Frame):
         if event.delta < 0:
             self.message_canvas.yview_scroll(1, "units")
             
-    def on_info(self, res = None):
+    def on_info(self, res: requests.Response):
         if res.status_code == 404:
-            messagebox.showwarning('404 Error',f'Channel with id:{self.channel_id} not found')
+            messagebox.showwarning('404 Error',f'Channel with id:{self.id} not found')
             self.on_close(self)
         else:
             data = res.json()
-            self.channel_info = data['channel'][0] 
-            self.label.configure(text=self.channel_info['name'], bg='red', fg='white', font=('Helvetica', 16))
+            self.channel_info = data
+            self.label.configure(text=self.channel_info['channel']['name'], bg='red', fg='white', font=('Helvetica', 16))
+            self.reload(res,True)
 
     
     def wait_for_info(self):
         while self.channel_info == {}:
             time.sleep(.1)
             
-    def load_content(self, messages: list):
-        messages.sort(key=lambda x: x['date'], reverse=True)
+    def load_content(self, channel_data: list):
+        data = channel_data['messages'] + channel_data['files']
+        data.sort(key=lambda x: x['date'], reverse=True)
         self.clear_frame(self.message_frame)
         # self.message_canvas.configure(scrollregion=(0, 0, 550, len(messages)*50))
-        for message in messages:
-            Message(self.message_frame, message=message).pack(side=BOTTOM, anchor=SW)
+        for message in data:
+            if message['type'] == 'msg':
+                Message(self.message_frame, message=message).pack(side=BOTTOM, anchor=SW)
+            elif message['type'] == 'img':
+                ImageMessage(self.message_frame, message=message).pack(side=BOTTOM, anchor=SW)
+
+                
 
     def send_message(self, message):
         if message['content'].strip() != '':
@@ -96,7 +103,7 @@ class Channel(Frame):
             with open(file_path, 'rb') as f:
                 user_id = User.get_instance().get_id()
                 files = {'file': f}
-                res = requests.post(f'{host.HOSTNAME}/api/media/upload', files=files, json={'user_id': user_id}, headers={
+                res = requests.post(f'{host.HOSTNAME}/api/media/upload', files=files, data={'user_id': user_id, "channel_id":self.id}, headers={
                     'Content-type':'application/json'})
                 if res.status_code == 200:
                     print('File upload successful')
@@ -112,9 +119,9 @@ class Channel(Frame):
     def get_channel_info(self, callback):  # requests from api slow asf basically and really inconsistent speed wise
             def make_request():
                 try:
-                    res = requests.get(f'{host.HOSTNAME}/api/channel/{self.channel_id}')
+                    res = requests.get(f'{host.HOSTNAME}/api/channel/{self.id}')
                 except Exception as e:
-                    raise Exception
+                    print(e)
 
                 callback(res)
 
@@ -125,14 +132,15 @@ class Channel(Frame):
         self.get_channel_info(self.reload)
         self.after(5000, self.run_tick)
         
-    def reload(self, res):
+    def reload(self, res, force = False):
         if res.status_code == 404:
             Logging.error('404 Not found, when updating messages')
         elif res.status_code == 200:
-            data = res.json()['messages']
-            if len(data) != len(self.messages):
-                self.messages = data
-                threading.Thread(target=lambda:self.load_content(self.messages), daemon=True).start()
+            data = res.json()
+            t = data['files'] + data['messages']
+            if len(data) != len(self.channel_info) or force: # basically a race condition with self.on_inf0(), then messages get weirdly ordered due tO THIs aswell
+                self.channel_info = data
+                threading.Thread(target=lambda:self.load_content(data), daemon=True).start() 
             
 
 

@@ -11,7 +11,7 @@ class Observable:
     def run(self, obs: Variable, callback):
         old = obs.get()
         while self.b:
-            if old != obs.get():
+            if old != obs.get() and self.b:
                 old = obs.get()
                 callback()
             time.sleep(0.1)
