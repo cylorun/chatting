@@ -103,7 +103,7 @@ class Channel(Frame):
             with open(file_path, 'rb') as f:
                 user_id = User.get_instance().get_id()
                 files = {'file': f}
-                res = requests.post(f'{host.HOSTNAME}/api/media/upload', files=files, json={'user_id': user_id, "channel_id":self.id})
+                res = requests.post(f'{host.HOSTNAME}/api/media/upload', files=files, data={'user_id': user_id, "channel_id":self.id})
                 if res.status_code == 200:
                     print('File upload successful')
                 else:
