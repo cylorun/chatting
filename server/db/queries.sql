@@ -18,11 +18,12 @@ CREATE TABLE channels(channel_id INTEGER PRIMARY KEY AUTOINCREMENT,
                         user_id INTEGER  --owner
                         );
 
-CREATE TABLE files(file_id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE images(image_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name VARCHAR(255),
                     date INTEGER,
                     user_id INTEGER,
-                    channel_id INTEGER,       --owner
+                    channel_id INTEGER,
+                    trans BOOLEAN,       --owner
                     data BLOB);
 
 

@@ -26,12 +26,12 @@ class App:
                 file_name = secure_filename(file.filename)
                 user_id = data['user_id']
                 channel_id = data['channel_id']
-            except Exception:
-                return jsonify('Bad request'), 401
-
-            file_id = util.data.insert("INSERT INTO files (date, data, user_id, channel_id, name) VALUES (?,?,?,?,?)",(int(time.time()), file.read(), user_id, channel_id , file_name))
-            if file_id:
-                return jsonify({'Success':f'File upload successful, file_id  {file_id}'}), 200
+            except Exception as e:
+                return jsonify({'Bad request':e.__str__()}), 401
+            is_trans = file_name.split('.')[-1].lower() == 'png'
+            image_id = util.data.insert("INSERT INTO images (date, data, user_id, channel_id, name, trans) VALUES (?,?,?,?,?,?)",(int(time.time()), file.read(), user_id, channel_id , file_name, is_trans))
+            if image_id:
+                return jsonify({'Success':f'File upload successful, file_id  {image_id}'}), 200
             return jsonify({'Error':'Failed to upload image'}), 400
 
         @self.app.route('/api/send_msg', methods=['POST'])
@@ -83,17 +83,17 @@ class App:
             channel = {"messages": [], "files": [], "channel": {}}
             messages = util.data.select(f'SELECT * FROM messages')
             channel_data = util.data.select(f'SELECT * FROM channels WHERE channel_id = {channel_id}')
-            channel_files = util.data.select(f'SELECT * FROM files WHERE channel_id = {channel_id}') 
+            channel_images = util.data.select(f'SELECT * FROM images WHERE channel_id = {channel_id}') 
 
             if not channel_data:
                 return jsonify({"error": "Channel not found"}), 404
             
-            if channel_files:
-                for file_data in channel_files:
-                    file_data['data'] = base64.b64encode(file_data['data']).decode('utf-8')
-                    file_data['owner'] = {'name': self.user_from_id(file_data['user_id'])['name']}
-                    file_data['type'] = 'img'
-                channel['files'] = channel_files
+            if channel_images:
+                for image_data in channel_images:
+                    image_data['data'] = base64.b64encode(image_data['data']).decode('utf-8')
+                    image_data['owner'] = {'name': self.user_from_id(image_data['user_id'])['name']}
+                    image_data['type'] = 'img'
+                channel['files'] = channel_images
 
             if messages:
                 for message in messages:

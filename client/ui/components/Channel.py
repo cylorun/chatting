@@ -94,7 +94,7 @@ class Channel(Frame):
     def send_message(self, message):
         if message['content'].strip() != '':
             threading.Thread(target=lambda: requests.post(f'{host.HOSTNAME}/api/send_msg', json=message,
-                                headers={'Content-Type': 'application/json'}).json(), daemon=True).start()
+                            headers={'Content-Type': 'application/json'}).json(), daemon=True).start()
             self.message_entry.delete(0,END)
     
     def upload_file(self):
@@ -103,12 +103,13 @@ class Channel(Frame):
             with open(file_path, 'rb') as f:
                 user_id = User.get_instance().get_id()
                 files = {'file': f}
-                res = requests.post(f'{host.HOSTNAME}/api/media/upload', files=files, data={'user_id': user_id, "channel_id":self.id}, headers={
-                    'Content-type':'application/json'})
+                res = requests.post(f'{host.HOSTNAME}/api/media/upload', files=files, json={'user_id': user_id, "channel_id":self.id})
                 if res.status_code == 200:
                     print('File upload successful')
                 else:
                     print('Failed to upload file')
+                    print(res.json())
+
         else:
             print("No file selected.")
             
