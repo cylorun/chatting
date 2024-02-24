@@ -17,11 +17,7 @@ class Channel(Frame):
         self.messages = []
         self.tmp_messages = []
         self.on_close = on_close
-        tmp_user = User.get_instance()
-        self.user = {'name' : tmp_user.get_name(),
-                    'user_id' : tmp_user.get_id(),
-                    'password' : tmp_user.get_password(),
-                    'email' : tmp_user.get_email()}
+
         
         ClickableImage(self, on_close, os.path.join(os.getcwd(),'assets','images','x_button.png')).pack(side=TOP, anchor=E)
         self.scroll_frame = Frame(self)
@@ -44,7 +40,7 @@ class Channel(Frame):
 
         self.message_var = StringVar()
         self.send_button = Button(self.input_frame, text="Send", font=('Arial', 8, 'italic'),
-                                command=lambda: self.send_message({"user_id": self.user['user_id'], "channel_id": self.id,
+                                command=lambda: self.send_message({"user_id": User.get_instance().get_id(), "channel_id": self.id,
                                                                     "content": self.message_var.get()}))
         self.message_entry = Entry(self.input_frame, textvariable=self.message_var)
 
@@ -56,7 +52,8 @@ class Channel(Frame):
         self.input_frame.pack(side=BOTTOM, anchor=SW)
 
         self.message_canvas.yview_moveto(1.0)
-        threading.Thread(target=lambda: self.get_channel_info(self.on_info), daemon=True).start()
+        # threading.Thread(target=lambda: self.get_channel_info(self.on_info), daemon=True).start()
+        self.get_channel_info(self.on_info, False)
         self.run_tick()
         
     def on_mousewheel(self, event):
@@ -71,7 +68,7 @@ class Channel(Frame):
             data = res.json()
             self.channel_info = data
             self.label.configure(text=self.channel_info['channel']['name'], bg='red', fg='white', font=('Helvetica', 16))
-            self.reload(res,True)
+            # self.reload(res,True)
 
     
     def wait_for_info(self):
@@ -79,6 +76,7 @@ class Channel(Frame):
             time.sleep(.1)
             
     def load_content(self, channel_data: list):
+        print('loading')
         data = channel_data['messages'] + channel_data['files']
         data.sort(key=lambda x: x['date'], reverse=True)
         self.clear_frame(self.message_frame)
@@ -117,7 +115,7 @@ class Channel(Frame):
         for child in frame.winfo_children():
             child.destroy()
 
-    def get_channel_info(self, callback):  # requests from api slow asf basically and really inconsistent speed wise
+    def get_channel_info(self, callback, thread = True):  # requests from api slow asf basically and really inconsistent speed wise
             def make_request():
                 try:
                     res = requests.get(f'{host.HOSTNAME}/api/channel/{self.id}')
@@ -126,8 +124,10 @@ class Channel(Frame):
 
                 callback(res)
 
-            thread = threading.Thread(target=make_request)
-            thread.start()
+            if thread:
+                threading.Thread(target=make_request).start()
+            else:
+                make_request()
             
     def run_tick(self):
         self.get_channel_info(self.reload)
@@ -138,10 +138,10 @@ class Channel(Frame):
             Logging.error('404 Not found, when updating messages')
         elif res.status_code == 200:
             data = res.json()
-            t = data['files'] + data['messages']
             if len(data) != len(self.channel_info) or force: # basically a race condition with self.on_inf0(), then messages get weirdly ordered due tO THIs aswell
                 self.channel_info = data
                 threading.Thread(target=lambda:self.load_content(data), daemon=True).start() 
             
 
 
+# just rewrite the entire class at this point lol

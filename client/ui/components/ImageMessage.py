@@ -41,7 +41,7 @@ class ImageMessage(Frame):
             self.message_content_label.image = img
             self.message_content_label.pack()
         except Exception as e:
-            print(e)
+            print('"ASKDHJASKHDSAJHDGASHJGDJHASGDJHSTYHIGNASINDHJASKLDGHJAS GDHJAS GDJH1203719827398')
 
 
 
