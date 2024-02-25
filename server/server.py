@@ -1,4 +1,4 @@
-from routes import App
-
+from api.routes import App
+import threading, sys
 app = App()
 app.run()
