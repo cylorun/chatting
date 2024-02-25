@@ -103,4 +103,3 @@ INSERT INTO channels (date, name, password, user_id) VALUES
 (1643738880, 'TEst RoomM DOS','wassy',23),
 (1643733380, 'TEst RoomM THRE!!!!!!!!','passy',2);
 
-
