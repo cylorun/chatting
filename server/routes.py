@@ -42,7 +42,7 @@ class App:
                 channel_id = data['channel_id']
                 content = data['content']
             except Exception as e:
-                return jsonify({'Error':e}), 400
+                return jsonify({'Error':'bad request'}), 401
             
             message_id = util.data.insert("INSERT INTO messages (user_id, channel_id, content, date) VALUES (?,?,?,?)",(user_id, channel_id, content, int(time.time())))
             return jsonify("Uploaded message successfully!"), 200 

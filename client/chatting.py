@@ -74,12 +74,16 @@ class Chatterino:
         return [str(k.id) for k in self.notebook.winfo_children() ]
     
     def add_channel(self, channel_id):
+        info = self.get_channel_info(channel_id)
+        if info:
+            channel = Channel(self.notebook, channel_id, self.remove_channel)
+            channel.channel_info = info
+            self.notebook.add(channel, text=channel.channel_info['name'])
+            self.notebook.select(channel)
 
-        channel = Channel(self.notebook, channel_id, self.remove_channel)
-        self.notebook.add(channel, text=channel.channel_info['channel']['name'])
-        self.notebook.select(channel)
-
-        ChannelManager.add_channel(channel_id)
+            ChannelManager.add_channel(channel_id)
+            return
+        Logging.error(f'could not add channel with id {channel_id}')
 
     def get_channel_info(self, channel_id):
         res = requests.get(f'{host.HOSTNAME}/api/channel/{channel_id}')

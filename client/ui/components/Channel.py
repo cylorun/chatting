@@ -40,8 +40,7 @@ class Channel(Frame):
 
         self.message_var = StringVar()
         self.send_button = Button(self.input_frame, text="Send", font=('Arial', 8, 'italic'),
-                                command=lambda: self.send_message({"user_id": User.get_instance().get_id(), "channel_id": self.id,
-                                                                    "content": self.message_var.get()}))
+                                command=lambda: self.send_message(self.message_var.get()))
         self.message_entry = Entry(self.input_frame, textvariable=self.message_var)
 
         self.upload_button = ClickableImage(self.input_frame,on_click= lambda e: self.upload_file(), src=os.path.join(os.getcwd(),'assets','images','upload_button.png'))
@@ -61,20 +60,37 @@ class Channel(Frame):
         else:
             self.message_canvas.yview_scroll(-1, "units")
 
-            
+    def clear_content(self):
+        for w in self.message_frame.winfo_children():
+            w.destroy()
+
     def update_channel(self):
         res = requests.get(f'{host.HOSTNAME}/api/channel/{self.id}')
         if res.status_code == 404:
             print('invalid channel id channel not found')
             return
         if res.status_code == 200:
+            self.clear_content()
             channel_json =  res.json()
-            messages = channel_json['messages'] + channel_json['images']
+            messages: list = channel_json['messages'] + channel_json['images']
+            messages.sort(key=lambda x: x['date'], reverse=True)
             for message in messages:
                 if message['type'] == 'msg':
                     Message(self.message_frame, message).pack()
                 elif message['type'] == 'img':
                     ImageMessage(self.message_frame, message).pack()
-
-                        
     
+    def send_message(self, content: str):
+        json = {"user_id":User.get_instance().get_id(),
+                "channel_id":self.id,
+                "content":content}
+        
+        if content.strip(): # check if it  empty or not
+            res = requests.post(f'{host.HOSTNAME}/api/send_msg',json=json, headers={'Content-Type': 'application/json'})
+
+            if res.status_code == 404 or res.status_code == 401:
+                print(res.text)
+                return
+            if res.status_code == 200:
+                threading.Thread(target=self.update_channel, daemon=True).start()
+                self.message_entry.delete(0, END)
