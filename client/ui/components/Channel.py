@@ -14,9 +14,8 @@ class Channel(Frame):
 
         self.id = id
         self.channel_info = {}  # only channel info, no messages or files
-        self.messages = []
-        self.tmp_messages = []
         self.on_close = on_close
+        self.max_scroll = 0
 
         
         ClickableImage(self, on_close, os.path.join(os.getcwd(),'assets','images','x_button.png')).pack(side=TOP, anchor=E)
@@ -64,11 +63,18 @@ class Channel(Frame):
         for w in self.message_frame.winfo_children():
             w.destroy()
 
-    def update_channel(self):
+    # def message_heights(self):
+    #     for w in self.message_frame.winfo_children():
+    #         s = w.winfo_geometry().split('x')[1]
+    #         print(s)
+    #         self.max_scroll += int(s)
+
+    def update_channel(self): 
         res = requests.get(f'{host.HOSTNAME}/api/channel/{self.id}')
         if res.status_code == 404:
             print('invalid channel id channel not found')
             return
+        
         if res.status_code == 200:
             self.clear_content()
             channel_json =  res.json()
@@ -76,7 +82,7 @@ class Channel(Frame):
             messages.sort(key=lambda x: x['date'], reverse=True)
             for message in messages:
                 if message['type'] == 'msg':
-                    Message(self.message_frame, message).pack()
+                    Message(self.message_frame, message).winfo_geometr
                 elif message['type'] == 'img':
                     ImageMessage(self.message_frame, message).pack()
     

@@ -149,7 +149,8 @@ if __name__ == '__main__':
             
         threading.Thread(target=app.load_channels, daemon=True).start()
         app.run()
-
+    def pip_install():
+        pass
     app = Chatterino()
     app.raise_for_conn()
     if UserManager.has_active():
