@@ -1,10 +1,9 @@
 from tkinter import *
 import datetime
 class Message(Frame):
-    def __init__(self, parent, message, is_file = False, *args, **kwargs):
+    def __init__(self, parent, message, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.configure(padx=5,pady=5,borderwidth=2, relief="solid")
-        self.is_file = is_file
         self.message_data = message
 
         self.user_data = self.message_data['owner']
@@ -22,15 +21,11 @@ class Message(Frame):
         
         self.message_author_label.configure(text=self.user_data['name'])
         self.message_author_label.pack(side=TOP,anchor=SW)
-            
-        if not self.is_file:
-            self.message_data['content'] = Message.format_content(self.message_data['content'])
-            self.message_content_label.configure(text=self.message_data['content'])
-            self.message_content_label.pack(side=BOTTOM)
-        else:
-            img = PhotoImage(data=self.message_data['content'])
-            self.message_content_label.configure(image=img)
-            self.message_content_label.image = img
+
+        self.message_data['content'] = Message.format_content(self.message_data['content'])
+        self.message_content_label.configure(text=self.message_data['content'])
+        self.message_content_label.pack(side=BOTTOM)
+
     
     @staticmethod
     def format_content(content):

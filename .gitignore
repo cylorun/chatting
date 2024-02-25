@@ -2,4 +2,5 @@
 *.json
 *.db
 *.pyc
-*dat
+*.dat
+*.png

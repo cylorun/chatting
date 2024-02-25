@@ -80,7 +80,7 @@ class App:
         
         @self.app.route('/api/channel/<int:channel_id>', methods=['GET'])
         def channel_info(channel_id):
-            channel = {"messages": [], "files": [], "channel": {}}
+            channel = {"messages": [], "images": [], "channel": {}}
             messages = util.data.select(f'SELECT * FROM messages')
             channel_data = util.data.select(f'SELECT * FROM channels WHERE channel_id = {channel_id}')
             channel_images = util.data.select(f'SELECT * FROM images WHERE channel_id = {channel_id}') 
@@ -93,7 +93,7 @@ class App:
                     image_data['data'] = base64.b64encode(image_data['data']).decode('utf-8')
                     image_data['owner'] = {'name': self.user_from_id(image_data['user_id'])['name']}
                     image_data['type'] = 'img'
-                channel['files'] = channel_images
+                channel['images'] = channel_images
 
             if messages:
                 for message in messages:

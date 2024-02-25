@@ -58,12 +58,15 @@ class Chatterino:
             for channel in data['channels']:
                 try:
                     if not channel['channel_id'] in loaded:
-                        c = Channel(self.notebook, channel['channel_id'], self.remove_channel)
-                        c.wait_for_info()
-                        self.notebook.add(c, text=c.channel_info['channel']['name'])
+                        info = self.get_channel_info(channel['channel_id'])
+                        if info:
+                            c = Channel(self.notebook, channel['channel_id'], self.remove_channel)
+                            c.channel_info = info
+                            self.notebook.add(c, text=c.channel_info['name'])
+                        else:
+                            messagebox.showwarning('404',f"Could not load channel {channel['channel_id']}")
                 except Exception as e:
-                    Logging.error(e)
-                    print('ohno')
+                    Logging.error(e.__str__())
         else:
             ChannelManager.create_json() # is this even needed lol
 
@@ -73,12 +76,18 @@ class Chatterino:
     def add_channel(self, channel_id):
 
         channel = Channel(self.notebook, channel_id, self.remove_channel)
-        channel.wait_for_info()
         self.notebook.add(channel, text=channel.channel_info['channel']['name'])
         self.notebook.select(channel)
 
         ChannelManager.add_channel(channel_id)
 
+    def get_channel_info(self, channel_id):
+        res = requests.get(f'{host.HOSTNAME}/api/channel/{channel_id}')
+        if res.status_code == 404:
+            print(f'Could not load data for channel {channel_id}')
+            return None
+        if res.status_code == 200:
+            return res.json()['channel']
 
     def create_channel(self, data):  # will sometimes completely freeze when making a new channel
         try:
