@@ -1,5 +1,9 @@
 import json
-from ..util.data import Data
+import sys
+sys.path.append('/home/alfgrimur/Desktop/school/sem2/forri2/forri2-verk')
+
+from server.util.data import Data
+
 
 
 def get_messages(args):

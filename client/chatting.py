@@ -8,6 +8,7 @@ from ui.components.Form import *
 from ui.menu import ToolMenu
 from util.logging import Logging
 from util.ChannelManager import ChannelManager
+from conn.SocketManager import SocketManager
 import host
 import requests, sys, os, json, threading
 
@@ -15,6 +16,7 @@ class Chatterino:
     def __init__(self, user = None):
         self.user = user
         self.root = Tk()
+        self.client_socket = SocketManager(('localhost',5555), self.on_socket)
         self.root.title('Lokaverk')    
         self.root.geometry('600x650')
         self.root.resizable(False, False)
@@ -25,6 +27,8 @@ class Chatterino:
         
         self.root.config(menu=self.menu)
         self.notebook.pack(fill='both', expand=True)
+        self.client_socket.connect()
+        self.client_socket.listen()
 
     def log_out(self):
         UserManager.remove(User.get_instance().to_dict())
@@ -138,7 +142,9 @@ class Chatterino:
     def exit(self):
         self.root.destroy()
         sys.exit(1)
-            
+    
+    def on_socket(self, data):
+        print(data)
 
 
 if __name__ == '__main__':
@@ -149,8 +155,10 @@ if __name__ == '__main__':
             
         threading.Thread(target=app.load_channels, daemon=True).start()
         app.run()
+
     def pip_install():
         pass
+
     app = Chatterino()
     app.raise_for_conn()
     if UserManager.has_active():
