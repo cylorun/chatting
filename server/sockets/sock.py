@@ -1,6 +1,6 @@
 import socket
 import threading
-import sockets.socket_handler as sh
+import socket_handler as sh
 
 class Sock():
 
@@ -54,3 +54,4 @@ class Sock():
 
 
 
+Sock()

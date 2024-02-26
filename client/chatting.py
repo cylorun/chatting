@@ -144,7 +144,7 @@ class Chatterino:
 if __name__ == '__main__':
     def run(is_login = False ,user = None):
         app.raise_for_conn()
-        if user != None:
+        if user:
             app.add_user(user, is_login)
             
         threading.Thread(target=app.load_channels, daemon=True).start()

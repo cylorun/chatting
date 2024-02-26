@@ -1,10 +1,10 @@
 import json
-import util.data
+from ..util.data import Data
 
 
 def get_messages(args):
     json_data = json.loads(args)
-    return str(util.data.select(f'SELECT * FROM channels WHERE channel_id = {json_data['channel_id']}'))
+    return str(Data.select(f'SELECT * FROM channels WHERE channel_id = {json_data["channel_id"]}'))
 
 def send_msg(args):
     json_data = json.loads(args)
