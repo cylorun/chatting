@@ -1,26 +1,31 @@
 import socket, threading
 
 
-class SocketManager:
+class ClientSocket:
+    MESSAGE_UPDATE = 'MESSAGE_UPDATE:'
     def __init__(self, server: tuple, callback: callable) -> None:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_addr = server
         self.callback = callback
+        self.connected = False
 
     def listen(self):
-        threading.Thread(target=self._do_listen, daemon=True).start()
+        threading.Thread(target=self.do_listen, daemon=True).start()
 
     def connect(self):
         self.socket.connect(self.server_addr)
+        self.connected = True
 
     def send(self, data):
-        self.socket.sendall(data)
+        if self.connected:
+            self.socket.sendall(data.encode('utf-8'))       
 
-    def _do_listen(self):
+    def do_listen(self):
         while True:
             try:
                 res = self.get_data()
-                self.callback(res)
+                if res:
+                    self.callback(res)
             except Exception as e:
                 print(f'Error when listening in socket, {e.__str__()}')
             

@@ -39,7 +39,7 @@ class ChannelManager:
     
     @staticmethod
     def search_from_name(name) -> list:
-        res = requests.post(f'{host.HOSTNAME}/api/channel_name', json={'name': name},
+        res = requests.post(f'{host.API_ADDR}/api/channel_name', json={'name': name},
                     headers={'Content-Type': 'application/json'})
         if res.status_code == 404:
             return None

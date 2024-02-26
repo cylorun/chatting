@@ -110,7 +110,7 @@ class JoinChannelForm(Toplevel):
         payload = {"name":self.inp_var.get()}
         try:
             self.loading_label.configure(text="Loading...")
-            res = requests.post(f'{host.HOSTNAME}/api/channel_name', json=payload,
+            res = requests.post(f'{host.API_ADDR}/api/channel_name', json=payload,
                                     headers={'Content-Type': 'application/json'})
             self.loading_label.configure(text="")
         

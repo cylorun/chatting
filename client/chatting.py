@@ -8,7 +8,7 @@ from ui.components.Form import *
 from ui.menu import ToolMenu
 from util.logging import Logging
 from util.ChannelManager import ChannelManager
-from conn.SocketManager import SocketManager
+from conn.ClientSocket import ClientSocket
 import host
 import requests, sys, os, json, threading
 
@@ -16,17 +16,17 @@ class Chatterino:
     def __init__(self, user = None):
         self.user = user
         self.root = Tk()
-        self.client_socket = SocketManager(('localhost',5555), self.on_socket)
+        self.client_socket = ClientSocket(host.SOCKET_ADDR, self.on_socket)
         self.root.title('Lokaverk')    
         self.root.geometry('600x650')
         self.root.resizable(False, False)
 
         self.max_retries = 5 
-        self.notebook = ttk.Notebook(self.root)
+        self.channel_notebook = ttk.Notebook(self.root)
         self.menu = ToolMenu(self)
         
         self.root.config(menu=self.menu)
-        self.notebook.pack(fill='both', expand=True)
+        self.channel_notebook.pack(fill='both', expand=True)
         self.client_socket.connect()
         self.client_socket.listen()
 
@@ -41,7 +41,7 @@ class Chatterino:
     
     def server_on(self):
         try:
-            requests.get(f'{host.HOSTNAME}/api/status')
+            requests.get(f'{host.API_ADDR}/api/status')
         except Exception:
             return False
         return True
@@ -64,33 +64,34 @@ class Chatterino:
                     if not channel['channel_id'] in loaded:
                         info = self.get_channel_info(channel['channel_id'])
                         if info:
-                            c = Channel(self.notebook, channel['channel_id'], self.remove_channel)
+                            c = Channel(self.channel_notebook, channel['channel_id'], self.remove_channel, self.client_socket,)
                             c.channel_info = info
-                            self.notebook.add(c, text=c.channel_info['name'])
+                            self.channel_notebook.add(c, text=c.channel_info['name'])
                         else:
                             messagebox.showwarning('404',f"Could not load channel {channel['channel_id']}")
+                            ChannelManager.remove_channel(channel['channel_id'])
                 except Exception as e:
                     Logging.error(e.__str__())
         else:
             ChannelManager.create_json() # is this even needed lol
 
     def get_loaded_channels(self):
-        return [str(k.id) for k in self.notebook.winfo_children() ]
+        return [str(k.id) for k in self.channel_notebook.winfo_children() ]
     
     def add_channel(self, channel_id):
         info = self.get_channel_info(channel_id)
         if info:
-            channel = Channel(self.notebook, channel_id, self.remove_channel)
+            channel = Channel(self.channel_notebook, channel_id, self.remove_channel, self.client_socket )
             channel.channel_info = info
-            self.notebook.add(channel, text=channel.channel_info['name'])
-            self.notebook.select(channel)
+            self.channel_notebook.add(channel, text=channel.channel_info['name'])
+            self.channel_notebook.select(channel)
 
             ChannelManager.add_channel(channel_id)
             return
         Logging.error(f'could not add channel with id {channel_id}')
 
     def get_channel_info(self, channel_id):
-        res = requests.get(f'{host.HOSTNAME}/api/channel/{channel_id}')
+        res = requests.get(f'{host.API_ADDR}/api/channel/{channel_id}')
         if res.status_code == 404:
             print(f'Could not load data for channel {channel_id}')
             return None
@@ -104,13 +105,13 @@ class Chatterino:
         except Exception as e:
             print(e)
         owner = UserManager.get_active()['user_id']
-        res = requests.post(f'{host.HOSTNAME}/api/channel/new', json={"name":name, "password":password,"user_id":owner},
+        res = requests.post(f'{host.API_ADDR}/api/channel/new', json={"name":name, "password":password,"user_id":owner},
                         headers={'Content-Type': 'application/json'})
         
         self.add_channel(res.json()['channel_id'])
     
     def remove_channel(self, channel):
-        for w in self.notebook.winfo_children():
+        for w in self.channel_notebook.winfo_children():
             if w.id == channel.id:
                 w.destroy()
         ChannelManager.remove_channel(channel.id)
@@ -121,7 +122,7 @@ class Chatterino:
         if is_login:
             endpoint = '/api/login'
 
-        req = requests.post(f'{host.HOSTNAME}{endpoint}', json=user,
+        req = requests.post(f'{host.API_ADDR}{endpoint}', json=user,
                                 headers={'Content-Type': 'application/json'}) # returns the user with an ID
         user_data = req.json()
         if req.status_code == 200:
@@ -134,8 +135,8 @@ class Chatterino:
 
     def get_active_channel(self):
         try:
-            idx = self.notebook.index(self.notebook.select())
-            return self.notebook.winfo_children()[idx]
+            idx = self.channel_notebook.index(self.channel_notebook.select())
+            return self.channel_notebook.winfo_children()[idx]
         except Exception:
             return None
 
@@ -144,7 +145,13 @@ class Chatterino:
         sys.exit(1)
     
     def on_socket(self, data):
-        print(data)
+        command, args = data.split(':', 1)
+        args = json.loads(args)
+        if command =='UPDATE':
+            for channel in self.channel_notebook.winfo_children():
+                if channel.id == int(args['channel_id']):
+                    channel.update_channel()
+
 
 
 if __name__ == '__main__':

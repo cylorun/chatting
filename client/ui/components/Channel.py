@@ -7,15 +7,17 @@ from ui.components.ImageMessage import ImageMessage
 from ui.components.ClickableImage import ClickableImage
 from util.logging import Logging
 from data.user.User import User
+from conn.ClientSocket import ClientSocket
 
 class Channel(Frame):
-    def __init__(self, parent, id, on_close, *args, **kwargs):
+    def __init__(self, parent, id, on_close, socket: ClientSocket, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
         self.id = id
         self.channel_info = {}  # only channel info, no messages or files
         self.on_close = on_close
         self.max_scroll = 0
+        self.socket = socket
 
         
         ClickableImage(self, on_close, os.path.join(os.getcwd(),'assets','images','x_button.png')).pack(side=TOP, anchor=E)
@@ -50,7 +52,6 @@ class Channel(Frame):
         self.input_frame.pack(side=BOTTOM, anchor=SW)
 
         self.message_canvas.yview_moveto(1.0)
-        # threading.Thread(target=lambda: self.get_channel_info(self.on_info), daemon=True).start()
         self.update_channel()
         
     def on_mousewheel(self, event: Event):
@@ -70,7 +71,7 @@ class Channel(Frame):
     #         self.max_scroll += int(s)
 
     def update_channel(self): 
-        res = requests.get(f'{host.HOSTNAME}/api/channel/{self.id}')
+        res = requests.get(f'{host.API_ADDR}/api/channel/{self.id}')
         if res.status_code == 404:
             print('invalid channel id channel not found')
             return
@@ -82,7 +83,7 @@ class Channel(Frame):
             messages.sort(key=lambda x: x['date'], reverse=True)
             for message in messages:
                 if message['type'] == 'msg':
-                    Message(self.message_frame, message).winfo_geometr
+                    Message(self.message_frame, message).pack()
                 elif message['type'] == 'img':
                     ImageMessage(self.message_frame, message).pack()
     
@@ -92,7 +93,7 @@ class Channel(Frame):
                 "content":content}
         
         if content.strip(): # check if it  empty or not
-            res = requests.post(f'{host.HOSTNAME}/api/send_msg',json=json, headers={'Content-Type': 'application/json'})
+            res = requests.post(f'{host.API_ADDR}/api/send_msg',json=json, headers={'Content-Type': 'application/json'})
 
             if res.status_code == 404 or res.status_code == 401:
                 print(res.text)
@@ -100,3 +101,5 @@ class Channel(Frame):
             if res.status_code == 200:
                 threading.Thread(target=self.update_channel, daemon=True).start()
                 self.message_entry.delete(0, END)
+                msg = ClientSocket.MESSAGE_UPDATE+'{"channel_id":'+str(self.id)+'}'
+                self.socket.send(msg)

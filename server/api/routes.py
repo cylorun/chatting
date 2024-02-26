@@ -1,9 +1,9 @@
 from flask import Flask, request, jsonify
-import util.data
+from util.data import Data
 from util.logging import Logging
 from werkzeug.utils import secure_filename
 
-import os, time, datetime, random, hashlib,base64
+import os, time, datetime, random, hashlib, base64
 
 
 class App:
@@ -12,7 +12,7 @@ class App:
         
         @self.app.route('/api/users', methods=['GET'])
         def get_users():
-            users = util.data.select('SELECT * FROM users')
+            users = Data.select('SELECT * FROM users')
             if users:
                 return users
             return []
@@ -29,7 +29,7 @@ class App:
             except Exception as e:
                 return jsonify({'Bad request':e.__str__()}), 401
             is_trans = file_name.split('.')[-1].lower() == 'png'
-            image_id = util.data.insert("INSERT INTO images (date, data, user_id, channel_id, name, trans) VALUES (?,?,?,?,?,?)",(int(time.time()), file.read(), user_id, channel_id , file_name, is_trans))
+            image_id = Data.insert("INSERT INTO images (date, data, user_id, channel_id, name, trans) VALUES (?,?,?,?,?,?)",(int(time.time()), file.read(), user_id, channel_id , file_name, is_trans))
             if image_id:
                 return jsonify({'Success':f'File upload successful, file_id  {image_id}'}), 200
             return jsonify({'Error':'Failed to upload image'}), 400
@@ -44,7 +44,7 @@ class App:
             except Exception as e:
                 return jsonify({'Error':'bad request'}), 401
             
-            message_id = util.data.insert("INSERT INTO messages (user_id, channel_id, content, date) VALUES (?,?,?,?)",(user_id, channel_id, content, int(time.time())))
+            message_id = Data.insert("INSERT INTO messages (user_id, channel_id, content, date) VALUES (?,?,?,?)",(user_id, channel_id, content, int(time.time())))
             return jsonify("Uploaded message successfully!"), 200 
         
         @self.app.route('/api/register', methods=['POST'])
@@ -57,8 +57,8 @@ class App:
             except Exception as e:
                 return jsonify({'Error, bad request':e}), 400
             password = hashlib.sha256(password.encode()).hexdigest()
-            if util.data.insert('INSERT INTO users (name, email, password, date) VALUES (?,?,?,?)', (name, email, password, int(time.time()))):
-                return jsonify(util.data.select(f"SELECT * FROM users WHERE name='{name}' AND email='{email}' AND password='{password}'")[0]), 200
+            if Data.insert('INSERT INTO users (name, email, password, date) VALUES (?,?,?,?)', (name, email, password, int(time.time()))):
+                return jsonify(Data.select(f"SELECT * FROM users WHERE name='{name}' AND email='{email}' AND password='{password}'")[0]), 200
             else:
                 return jsonify({'Failed to insert to DB':"routes.py 46"}), 400
         
@@ -71,8 +71,8 @@ class App:
             except Exception:
                 pass
             password = hashlib.sha256(password.encode()).hexdigest()
-            u = util.data.select(f"SELECT * FROM users WHERE name='{name}' AND password='{password}'")
-            if len(u) >=1:
+            u = Data.select(f"SELECT * FROM users WHERE name='{name}' AND password='{password}'")
+            if u and len(u) >=1:
                 return jsonify(u[0]), 200
             else:
                 return jsonify('Login failed'), 402
@@ -81,9 +81,9 @@ class App:
         @self.app.route('/api/channel/<int:channel_id>', methods=['GET'])
         def channel_info(channel_id):
             channel = {"messages": [], "images": [], "channel": {}}
-            messages = util.data.select(f'SELECT * FROM messages')
-            channel_data = util.data.select(f'SELECT * FROM channels WHERE channel_id = {channel_id}')
-            channel_images = util.data.select(f'SELECT * FROM images WHERE channel_id = {channel_id}') 
+            messages = Data.select(f'SELECT * FROM messages')
+            channel_data = Data.select(f'SELECT * FROM channels WHERE channel_id = {channel_id}')
+            channel_images = Data.select(f'SELECT * FROM images WHERE channel_id = {channel_id}') 
 
             if not channel_data:
                 return jsonify({"error": "Channel not found"}), 404
@@ -115,8 +115,8 @@ class App:
             except Exception:
                 return jsonify({'Error':'bad req'}), 401
 
-            if util.data.insert('INSERT INTO channels (date, name, password, user_id) VALUES (?,?,?,?)',(int(time.time()), name, password, owner)):
-                return jsonify(util.data.select(f"SELECT * FROM channels WHERE name='{name}' AND password='{password}' AND user_id='{owner}'")[0]), 200
+            if Data.insert('INSERT INTO channels (date, name, password, user_id) VALUES (?,?,?,?)',(int(time.time()), name, password, owner)):
+                return jsonify(Data.select(f"SELECT * FROM channels WHERE name='{name}' AND password='{password}' AND user_id='{owner}'")[0]), 200
             
             return jsonify({'Error':'Failed to insert data'}), 400
         
@@ -130,7 +130,7 @@ class App:
             except Exception  as e:
                 return jsonify({'missing params':e}), 401 # bad request
             
-            channels = util.data.select(f"SELECT * FROM channels WHERE name LIKE '%{name}%'")
+            channels = Data.select(f"SELECT * FROM channels WHERE name LIKE '%{name}%'")
 
             if not channels:
                 return jsonify("Error, channel not found"), 201
@@ -143,7 +143,7 @@ class App:
         
 
     def user_from_id(self, user_id) -> dict:
-        user = util.data.select(f"SELECT * FROM users WHERE user_id == {user_id}")
+        user = Data.select(f"SELECT * FROM users WHERE user_id == {user_id}")
         if user:
             return user[0]
         
