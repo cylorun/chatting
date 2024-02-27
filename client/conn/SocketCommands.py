@@ -2,3 +2,6 @@
 
 class SocketCommands:
     COMM_UPDATE = 'UPDATE'
+    COMM_ASSIGNID = 'ASSIGN'
+    MESSAGE_UPDATE = 'MESSAGE_UPDATE'
+    

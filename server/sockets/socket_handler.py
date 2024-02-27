@@ -2,7 +2,8 @@ import json
 import sys
 import socket
 
-sys.path.append('/home/alfgrimur/Desktop/school/sem2/forri2/forri2-verk') 
+# sys.path.append('/home/alfgrimur/Desktop/school/sem2/forri2/forri2-verk') 
+sys.path.append('C:\\Users\\alfgr7\\Desktop\\school\\forri2\\chatting') 
 from server.util.data import Data
 
 
@@ -26,7 +27,7 @@ def invalid_command(args, clients):
     return f'Invalid command\n{args}'
 
 def send_all(data, clients: list[socket.socket]):
-    for client in clients:
+    for id, client in clients.items():
         client.sendall(data.encode('utf-8'))
 
 

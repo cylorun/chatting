@@ -2,7 +2,6 @@ import socket, threading
 
 
 class ClientSocket:
-    MESSAGE_UPDATE = 'MESSAGE_UPDATE:'
     def __init__(self, server: tuple, callback: callable) -> None:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_addr = server

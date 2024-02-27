@@ -1,5 +1,5 @@
 import socket
-import threading
+import threading, secrets, string
 import socket_handler as sh
 
 class Sock():
@@ -24,7 +24,9 @@ class Sock():
         while True:
             client_socket, addr = self.server.accept()
             print(f'Accepted connection from {addr[0]}:{addr[1]}')
-            self.clients.append(client_socket)
+            id = Sock.generate_rand_str(8)
+            self.clients[id] = client_socket
+            client_socket.send(f'ASSIGN:{{"id":{id}}}')
             threading.Thread(target=self.handle_client, args=(client_socket,)).start()
             
     def handle_client(self, client_socket: socket.socket):
@@ -59,6 +61,12 @@ class Sock():
 
     def close(self):
         self.server.close()
+        
+    @staticmethod
+    def generate_rand_str(l)->str:
+        alphabet = string.ascii_letters + string.digits
+        random_string = ''.join(secrets.choice(alphabet) for i in range(l))
+        return random_string
 sock = Sock()
 try:
     sock.run()

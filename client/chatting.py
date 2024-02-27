@@ -21,7 +21,8 @@ class Chatterino:
         self.root.title('Lokaverk')    
         self.root.geometry('600x650')
         self.root.resizable(False, False)
-
+        
+        self.CLIENT_ID = None
         self.max_retries = 5 
         self.channel_notebook = ttk.Notebook(self.root)
         self.menu = ToolMenu(self)
@@ -65,7 +66,7 @@ class Chatterino:
                     if not channel['channel_id'] in loaded:
                         info = self.get_channel_info(channel['channel_id'])
                         if info:
-                            c = Channel(self.channel_notebook, channel['channel_id'], self.remove_channel, self.client_socket,)
+                            c = Channel(self, channel['channel_id'], self.remove_channel, self.client_socket,)
                             c.channel_info = info
                             self.channel_notebook.add(c, text=c.channel_info['name'])
                         else:
@@ -82,7 +83,7 @@ class Chatterino:
     def add_channel(self, channel_id):
         info = self.get_channel_info(channel_id)
         if info:
-            channel = Channel(self.channel_notebook, channel_id, self.remove_channel, self.client_socket )
+            channel = Channel(self, channel_id, self.remove_channel, self.client_socket )
             channel.channel_info = info
             self.channel_notebook.add(channel, text=channel.channel_info['name'])
             self.channel_notebook.select(channel)
@@ -153,6 +154,10 @@ class Chatterino:
             for channel in self.channel_notebook.winfo_children(): 
                 if channel.id == int(args['channel_id']):
                     channel.update_channel()
+        elif command == SocketCommands.COMM_ASSIGNID:
+            if not self.CLIENT_ID:
+                self.CLIENT_ID = args['id']
+                print(f'Client id assigned:{args['id']}')
 
 
 

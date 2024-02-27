@@ -8,16 +8,18 @@ from ui.components.ClickableImage import ClickableImage
 from util.logging import Logging
 from data.user.User import User
 from conn.ClientSocket import ClientSocket
+from conn.SocketCommands import SocketCommands
 
 class Channel(Frame):
     def __init__(self, parent, id, on_close, socket: ClientSocket, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
+        super().__init__(parent.channel_notebook, *args, **kwargs)
 
         self.id = id
         self.channel_info = {}  # only channel info, no messages or files
         self.on_close = on_close
         self.max_scroll = 0
         self.socket = socket
+        self.parent = parent
 
         
         ClickableImage(self, on_close, os.path.join(os.getcwd(),'assets','images','x_button.png')).pack(side=TOP, anchor=E)
@@ -101,5 +103,5 @@ class Channel(Frame):
             if res.status_code == 200:
                 threading.Thread(target=self.update_channel, daemon=True).start()
                 self.message_entry.delete(0, END)
-                msg = ClientSocket.MESSAGE_UPDATE+'{"channel_id":'+str(self.id)+'}'
+                msg = f'{SocketCommands.MESSAGE_UPDATE}:{{"channel_id":{self.id},"client_id":{self.parent.CLIENT_ID}}}'
                 self.socket.send(msg)
