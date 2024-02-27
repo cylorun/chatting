@@ -21,13 +21,13 @@ class ClientSocket:
             self.socket.sendall(data.encode('utf-8'))       
 
     def do_listen(self):
-        while True:
-            try:
-                res = self.get_data()
-                if res:
-                    self.callback(res)
-            except Exception as e:
-                print(f'Error when listening in socket, {e.__str__()}')
+        try:
+            while True:
+                    res = self.get_data()
+                    if res:
+                        self.callback(res)
+        except Exception as e:
+            print(f'Error when listening in socket, {e.__str__()}')
             
     
     def get_data(self):

@@ -80,7 +80,7 @@ class Channel(Frame):
             self.clear_content()
             channel_json =  res.json()
             messages: list = channel_json['messages'] + channel_json['images']
-            messages.sort(key=lambda x: x['date'], reverse=True)
+            messages.sort(key=lambda x: x['date'])
             for message in messages:
                 if message['type'] == 'msg':
                     Message(self.message_frame, message).pack()

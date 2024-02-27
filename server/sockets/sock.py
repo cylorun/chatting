@@ -39,7 +39,7 @@ class Sock():
                         client_socket.sendall(response.encode('utf-8'))
             except Exception as e:
                 print(f"Error handling client request: {e}")
-                break
+                continue
 
 
     def get_data(self, sock: socket.socket):
@@ -62,5 +62,6 @@ class Sock():
 sock = Sock()
 try:
     sock.run()
-except Exception:
+except Exception as e:
+    print(e, "\nmain exception")
     sock.close()

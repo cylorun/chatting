@@ -9,6 +9,7 @@ from ui.menu import ToolMenu
 from util.logging import Logging
 from util.ChannelManager import ChannelManager
 from conn.ClientSocket import ClientSocket
+from conn.SocketCommands import SocketCommands
 import host
 import requests, sys, os, json, threading
 
@@ -147,8 +148,9 @@ class Chatterino:
     def on_socket(self, data):
         command, args = data.split(':', 1)
         args = json.loads(args)
-        if command =='UPDATE':
-            for channel in self.channel_notebook.winfo_children():
+        print(f'Recived: {command} \n args:{args}\nRaw: {data}')
+        if command == SocketCommands.COMM_UPDATE:# this works
+            for channel in self.channel_notebook.winfo_children(): 
                 if channel.id == int(args['channel_id']):
                     channel.update_channel()
 

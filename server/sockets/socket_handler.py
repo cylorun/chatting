@@ -19,6 +19,7 @@ def send_msg(args, clients):
 def message_update(args, clients):
     json_data = json.loads(args)
     channel_id = json_data['channel_id']
+    msg = f'UPDATE:{{"channel_id":{channel_id}}}'
     send_all(msg, clients) # FIX NO SINGLE QUEORS
 
 def invalid_command(args, clients):
