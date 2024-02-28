@@ -8,13 +8,15 @@ class Sock():
         self.commands = {
             'GET_MESSAGES': sh.get_messages,
             'SEND_MESSAGE': sh.send_msg,
-            'MESSAGE_UPDATE': sh.message_update
+            'MESSAGE_UPDATE': sh.message_update,
+            'USER_JOIN': sh.user_join,
+            'USER_LEAVE': sh.user_leave
         }
 
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.addr = ('0.0.0.0', 5555)
         
-        self.clients = []
+        self.clients = {}
         
     def run(self):
         self.server.bind(self.addr)
@@ -26,7 +28,7 @@ class Sock():
             print(f'Accepted connection from {addr[0]}:{addr[1]}')
             id = Sock.generate_rand_str(8)
             self.clients[id] = client_socket
-            client_socket.send(f'ASSIGN:{{"id":{id}}}')
+            client_socket.send(f'ASSIGN:{{"id":"{id}"}}'.encode('utf-8'))
             threading.Thread(target=self.handle_client, args=(client_socket,)).start()
             
     def handle_client(self, client_socket: socket.socket):

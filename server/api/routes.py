@@ -136,7 +136,11 @@ class App:
                 return jsonify("Error, channel not found"), 201
             
             return jsonify(channels), 200
-
+        @self.app.route('/api/user/<int:user_id>',methods=['GET'])
+        def user_info(user_id):
+            data = self.user_from_id(user_id)
+            return jsonify(data),200
+        
         @self.app.route('/api/status', methods=['GET'])
         def status():
             return jsonify({'Success':"ALl good!!!!!!!!!!"}), 200

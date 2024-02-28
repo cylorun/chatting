@@ -5,6 +5,7 @@ import requests, host, threading, time, os
 from ui.components.Message import Message
 from ui.components.ImageMessage import ImageMessage
 from ui.components.ClickableImage import ClickableImage
+from ui.components.UserPrescenceLabel import UserPrescenceLabel
 from util.logging import Logging
 from data.user.User import User
 from conn.ClientSocket import ClientSocket
@@ -82,12 +83,12 @@ class Channel(Frame):
             self.clear_content()
             channel_json =  res.json()
             messages: list = channel_json['messages'] + channel_json['images']
-            messages.sort(key=lambda x: x['date'])
+            messages.sort(key=lambda x: x['date'], reverse=True)
             for message in messages:
                 if message['type'] == 'msg':
-                    Message(self.message_frame, message).pack()
+                    Message(self.message_frame, message).pack(side=BOTTOM, anchor=W)
                 elif message['type'] == 'img':
-                    ImageMessage(self.message_frame, message).pack()
+                    ImageMessage(self.message_frame, message).pack(side=BOTTOM, anchor=W)
     
     def send_message(self, content: str):
         json = {"user_id":User.get_instance().get_id(),
@@ -103,5 +104,36 @@ class Channel(Frame):
             if res.status_code == 200:
                 threading.Thread(target=self.update_channel, daemon=True).start()
                 self.message_entry.delete(0, END)
-                msg = f'{SocketCommands.MESSAGE_UPDATE}:{{"channel_id":{self.id},"client_id":{self.parent.CLIENT_ID}}}'
-                self.socket.send(msg)
+                self.socket_message_upd()
+
+    def upload_file(self):
+        file_path = filedialog.askopenfilename(filetypes=[('Image files', '*.png;*.jpeg;*.gif;*.jpg')])
+        if file_path:
+            with open(file_path, 'rb') as f:
+                user_id = User.get_instance().get_id()
+                files = {'file': f}
+                res = requests.post(f'{host.API_ADDR}/api/media/upload', files=files, data={'user_id': user_id, "channel_id":self.id})
+                if res.status_code == 200:
+                    threading.Thread(target=self.update_channel, daemon=True).start()
+                    self.socket_message_upd()
+                else:
+                    print('Failed to upload file')
+
+    def socket_message_upd(self):
+        msg = f'{SocketCommands.COMM_MESSAGE_UPDATE}:{{"channel_id":{self.id},"client_id":"{self.parent.CLIENT_ID}"}}'
+        self.socket.send(msg)
+
+    def user_leave(self, data):
+        user_id = data['user_id']
+        res = requests.get(f'{host.API_ADDR}/api/user/{user_id}')
+        if res.status_code == 200:
+            username = res.json()['name']
+            UserPrescenceLabel(self.message_frame, f'{username} left the room.')
+        
+    def user_join(self, data):
+        user_id = data['user_id']
+        res = requests.get(f'{host.API_ADDR}/api/user/{user_id}')
+        if res.status_code == 200:
+            username = res.json()['name']
+            UserPrescenceLabel(self.message_frame, f'{username} joined the room.')
+        

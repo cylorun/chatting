@@ -143,21 +143,32 @@ class Chatterino:
             return None
 
     def exit(self):
+        self.client_socket.close()
         self.root.destroy()
         sys.exit(1)
     
     def on_socket(self, data):
         command, args = data.split(':', 1)
         args = json.loads(args)
-        print(f'Recived: {command} \n args:{args}\nRaw: {data}')
-        if command == SocketCommands.COMM_UPDATE:# this works
+        print(f'Recived:{command}\nargs:{args}\nRaw:{data}')
+
+        if command == SocketCommands.COMM_UPDATE:
             for channel in self.channel_notebook.winfo_children(): 
                 if channel.id == int(args['channel_id']):
                     channel.update_channel()
+
         elif command == SocketCommands.COMM_ASSIGNID:
             if not self.CLIENT_ID:
                 self.CLIENT_ID = args['id']
-                print(f'Client id assigned:{args['id']}')
+                print(f'Client id assigned:{args["id"]}')
+        elif command == SocketCommands.COMM_USER_LEAVE:
+            for channel in self.channel_notebook.winfo_children():
+                if channel.id == int(args['channel_id']):
+                    channel.user_leave(args)
+        elif command == SocketCommands.COMM_USER_JOIN:
+            for channel in self.channel_notebook.winfo_children():
+                if channel.id == int(args['channel_id']):
+                    channel.user_join(args)
 
 
 

@@ -28,7 +28,8 @@ class ClientSocket:
         except Exception as e:
             print(f'Error when listening in socket, {e.__str__()}')
             
-    
+    def close(self):
+        self.socket.close()
     def get_data(self):
         data = ''
         self.socket.settimeout(1)
