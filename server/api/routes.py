@@ -161,7 +161,7 @@ class App:
                 "password	":None,
                 "user_id"	:"0"}
     
-    def run(self, port = 8080):
+    def run(self, port = 3000):
         Logging.info(f'localhost:{port}')
         self.app.run(debug=True, host='0.0.0.0', port=port)
 
