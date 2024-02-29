@@ -19,7 +19,7 @@ class Message(Frame):
         self.time_stm_label.configure(text=self.date, font=('Arial', 7, 'italic'))
         self.time_stm_label.pack(side=TOP,anchor=SW)
         
-        self.message_author_label.configure(text=self.user_data['name'])
+        self.message_author_label.configure(text=self.user_data['name'], font=('Arial',10,'bold'))
         self.message_author_label.pack(side=TOP,anchor=SW)
 
         self.message_data['content'] = Message.format_content(self.message_data['content'])

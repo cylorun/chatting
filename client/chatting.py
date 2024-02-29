@@ -69,7 +69,6 @@ class Chatterino:
                             c = Channel(self, channel['channel_id'], self.remove_channel, self.client_socket,)
                             c.channel_info = info
                             self.client_socket.send(f'{SocketCommands.COMM_USER_JOIN}:{{"user_id":{User.get_instance().get_id()},"channel_id":{c.id}}}')
-
                             self.channel_notebook.add(c, text=c.channel_info['name'])
                         else:
                             messagebox.showwarning('404',f"Could not load channel {channel['channel_id']}")

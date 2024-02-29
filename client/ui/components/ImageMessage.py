@@ -26,7 +26,7 @@ class ImageMessage(Frame):
             self.time_stm_label.configure(text=self.date, font=('Arial', 7, 'italic'))
             self.time_stm_label.pack(side=TOP,anchor=SW)
             
-            self.message_author_label.configure(text=self.user_data['name'])
+            self.message_author_label.configure(text=self.user_data['name'], font=('Arial',10,'bold'))
             self.message_author_label.pack(side=TOP,anchor=SW)
             img_data = base64.b64decode(self.message_data['data'])
             if not os.path.exists(self.image_dir):
@@ -45,7 +45,9 @@ class ImageMessage(Frame):
             self.message_content_label.image = img
             self.message_content_label.pack()
         except Exception as e:
-            print(e.__str__())
+            self.message_content_label.configure(text=f'Failed to load image\n{e.__str__()}')
+            self.message_content_label.pack()
+
 
 
 

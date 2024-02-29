@@ -1,7 +1,5 @@
-- make Form.py less messy and have just one class that takes in a bunch of fields or something.
-- encrypt everything, both server and client side.
-- allow file/image uploads.
 - style it...
-- show message when someone leaves/joins a channel
-- Form.py cleanup
--the ammount of race conditions in this thing is so unfunny....
+- fix userstatuslabel duplication
+- deploy to a online server
+- make channels joinable with passwords
+- extract Form.py
