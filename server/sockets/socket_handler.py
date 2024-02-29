@@ -3,6 +3,7 @@ import sys
 import socket
 
 sys.path.append('/home/alfgrimur/Desktop/school/sem2/forri2/forri2-verk') 
+sys.path.append('/home/alfgr7/Desktop/projects/forri2-verk')
 # sys.path.append('C:\\Users\\alfgr7\\Desktop\\school\\forri2\\chatting') 
 from server.util.data import Data
 
