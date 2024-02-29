@@ -15,7 +15,10 @@ class ImageMessage(Frame):
         self.time_stm_label = Label(self)
         self.message_author_label = Label(self)
         self.message_content_label = Label(self)
-        
+        self.image_dir = os.path.join(os.getcwd(),'temp')
+        self.file_extension = self.message_data['name'].split('.')[-1]
+        self.img_path = os.path.join(os.getcwd(),'temp', f'{self.message_data["image_id"]}.{self.file_extension}')
+
         self.load()
         
     def load(self):
@@ -26,22 +29,23 @@ class ImageMessage(Frame):
             self.message_author_label.configure(text=self.user_data['name'])
             self.message_author_label.pack(side=TOP,anchor=SW)
             img_data = base64.b64decode(self.message_data['data'])
-            if not os.path.exists(f'{os.getcwd()}\\temp'):
-                os.mkdir(f'{os.getcwd()}\\temp')
-            image = Image.open(BytesIO(img_data))
-            if self.message_data['trans']:
-                image = image.convert('RGBA')
-            else:
-                image = image.convert('RGB')
-            img_path = f'{os.getcwd()}\\temp\\{ImageMessage.generate_rand_str()}.png'
-            image.save(img_path)
+            if not os.path.exists(self.image_dir):
+                os.mkdir(self.image_dir)
 
-            img = PhotoImage(file=img_path).subsample(3,3)
+            if not any(file.startswith(str(self.message_data["image_id"])) for file in os.listdir(self.image_dir)): # if the image file isnt cached
+                image = Image.open(BytesIO(img_data))
+                if self.message_data['trans']:
+                    image = image.convert('RGBA')
+                else:
+                    image = image.convert('RGB')
+                image.save(self.img_path)
+
+            img = PhotoImage(file=self.img_path).subsample(3,3)
             self.message_content_label.configure(image=img)
             self.message_content_label.image = img
             self.message_content_label.pack()
         except Exception as e:
-            print('"ASKDHJASKHDSAJHDGASHJGDJHASGDJHSTYHIGNASINDHJASKLDGHJAS GDHJAS GDJH1203719827398')
+            print(e.__str__())
 
 
 

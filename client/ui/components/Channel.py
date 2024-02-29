@@ -96,7 +96,7 @@ class Channel(Frame):
         
         for n in new:
             current_messages.insert(0, n)
-
+        
         for m in current_messages:
             if isinstance(m, Message):
                 Message(self.message_frame, m.message_data).pack(side=BOTTOM, anchor=W)
@@ -107,11 +107,11 @@ class Channel(Frame):
 
                 
     def send_message(self, content: str):
-        json = {"user_id":User.get_instance().get_id(),
-                "channel_id":self.id,
-                "content":content}
-        
         if content.strip(): # check if it  empty or not
+            json = {"user_id":User.get_instance().get_id(),
+                    "channel_id":self.id,
+                    "content":content}
+            
             res = requests.post(f'{host.API_ADDR}/api/send_msg',json=json, headers={'Content-Type': 'application/json'})
 
             if res.status_code == 404 or res.status_code == 401:
