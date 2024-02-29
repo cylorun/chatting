@@ -5,7 +5,7 @@ import requests, host, threading, time, os
 from ui.components.Message import Message
 from ui.components.ImageMessage import ImageMessage
 from ui.components.ClickableImage import ClickableImage
-from ui.components.UserPrescenceLabel import UserPrescenceLabel
+from ui.components.UserPresenceLabel import UserPresenceLabel
 from util.logging import Logging
 from data.user.User import User
 from conn.ClientSocket import ClientSocket
@@ -90,6 +90,22 @@ class Channel(Frame):
                 elif message['type'] == 'img':
                     ImageMessage(self.message_frame, message).pack(side=BOTTOM, anchor=W)
     
+    def append_messages(self, new: list):
+        current_messages = self.message_frame.winfo_children()
+        self.clear_content()
+        
+        for n in new:
+            current_messages.insert(0, n)
+
+        for m in current_messages:
+            if isinstance(m, Message):
+                Message(self.message_frame, m.message_data).pack(side=BOTTOM, anchor=W)
+            elif isinstance(m, ImageMessage):
+                ImageMessage(self.message_frame, m.message_data).pack(side=BOTTOM, anchor=W)
+            elif isinstance(m, UserPresenceLabel):
+                UserPresenceLabel(self.message_frame, m.text).pack(side=BOTTOM, anchor=W)
+
+                
     def send_message(self, content: str):
         json = {"user_id":User.get_instance().get_id(),
                 "channel_id":self.id,
@@ -128,12 +144,12 @@ class Channel(Frame):
         res = requests.get(f'{host.API_ADDR}/api/user/{user_id}')
         if res.status_code == 200:
             username = res.json()['name']
-            UserPrescenceLabel(self.message_frame, f'{username} left the room.')
+            self.append_messages([UserPresenceLabel(self.message_frame, f'{username} left the room.')])
         
     def user_join(self, data):
         user_id = data['user_id']
         res = requests.get(f'{host.API_ADDR}/api/user/{user_id}')
         if res.status_code == 200:
             username = res.json()['name']
-            UserPrescenceLabel(self.message_frame, f'{username} joined the room.')
+            self.append_messages([UserPresenceLabel(self.message_frame, f'{username} joined the room.')])
         

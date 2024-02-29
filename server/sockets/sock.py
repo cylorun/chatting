@@ -43,6 +43,7 @@ class Sock():
                         client_socket.sendall(response.encode('utf-8'))
             except Exception as e:
                 print(f"Error handling client request: {e}")
+                print(f'Ammount of clients: {len(self.clients)}')
                 continue
 
 

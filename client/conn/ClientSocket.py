@@ -17,7 +17,7 @@ class ClientSocket:
 
     def send(self, data):
         if self.connected:
-            self.socket.sendall(data.encode('utf-8'))       
+            self.socket.send(data.encode('utf-8'))       # not sendall
 
     def do_listen(self):
         try:
@@ -30,17 +30,20 @@ class ClientSocket:
             
     def close(self):
         self.socket.close()
+
     def get_data(self):
-        data = ''
-        self.socket.settimeout(1)
+        # data = '' # implementation for .sendall()
+        # self.socket.settimeout(1)
 
-        try:
-            while True:
-                chunk = self.socket.recv(1024).decode('utf-8')
-                if not chunk:
-                    break
-                data += chunk
-        except socket.timeout:
-            pass
+        # try:
+        #     while True:
+        #         chunk = self.socket.recv(1024).decode('utf-8')
+        #         if not chunk:
+        #             break
+        #         data += chunk
+        # except socket.timeout:
+        #     pass
 
+        # return data
+        data = self.socket.recv(1024).decode('utf-8')
         return data

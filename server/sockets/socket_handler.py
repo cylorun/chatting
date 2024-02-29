@@ -40,9 +40,22 @@ def user_leave(args, clients):
 def invalid_command(args, clients):
     return f'Invalid command\n{args}'
 
-def send_all(data, clients: list[socket.socket], blacklisted_ids: list):
+def is_connected(sock: socket.socket):
+    try:
+        sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+        return True
+    except socket.error:
+        return False
+    
+def send_all(data, clients: dict[str, socket.socket], blacklisted_ids: list):
+    dead_clients = []
     for id, client in clients.items():
-        if not id in blacklisted_ids: 
-            client.sendall(data.encode('utf-8'))
+        if not id in blacklisted_ids and is_connected(client):
+            try:
+                client.sendall(data.encode('utf-8'))
+            except socket.error:
+                dead_clients.append(id)
+    for d in dead_clients:
+        clients.pop(d)
 
 

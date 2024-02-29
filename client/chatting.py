@@ -68,6 +68,8 @@ class Chatterino:
                         if info:
                             c = Channel(self, channel['channel_id'], self.remove_channel, self.client_socket,)
                             c.channel_info = info
+                            self.client_socket.send(f'{SocketCommands.COMM_USER_JOIN}:{{"user_id":{User.get_instance().get_id()},"channel_id":{c.id}}}')
+
                             self.channel_notebook.add(c, text=c.channel_info['name'])
                         else:
                             messagebox.showwarning('404',f"Could not load channel {channel['channel_id']}")
@@ -85,6 +87,8 @@ class Chatterino:
         if info:
             channel = Channel(self, channel_id, self.remove_channel, self.client_socket )
             channel.channel_info = info
+            self.client_socket.send(f'{SocketCommands.COMM_USER_JOIN}:{{"user_id":{User.get_instance().get_id()},"channel_id":{channel_id}}}')
+
             self.channel_notebook.add(channel, text=channel.channel_info['name'])
             self.channel_notebook.select(channel)
 
@@ -113,9 +117,8 @@ class Chatterino:
         self.add_channel(res.json()['channel_id'])
     
     def remove_channel(self, channel):
-        for w in self.channel_notebook.winfo_children():
-            if w.id == channel.id:
-                w.destroy()
+        self.client_socket.send(f'{SocketCommands.COMM_USER_LEAVE}:{{"user_id":{User.get_instance().get_id()},"channel_id":{channel.id}}}')
+        channel.destroy()
         ChannelManager.remove_channel(channel.id)
 
         
