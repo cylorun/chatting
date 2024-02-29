@@ -110,10 +110,14 @@ class App:
             data = request.get_json()
             try:
                 name = data['name']
-                password = data['password']
                 owner = data['user_id']
             except Exception:
                 return jsonify({'Error':'bad req'}), 401
+            try:
+                password = data['password']
+            except KeyError:
+                password = None
+
 
             if Data.insert('INSERT INTO channels (date, name, password, user_id) VALUES (?,?,?,?)',(int(time.time()), name, password, owner)):
                 return jsonify(Data.select(f"SELECT * FROM channels WHERE name='{name}' AND password='{password}' AND user_id='{owner}'")[0]), 200
