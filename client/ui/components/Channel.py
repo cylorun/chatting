@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import filedialog, messagebox
-
+from tkinter import ttk
 import requests, host, threading, time, os
 from ui.components.Message import Message
 from ui.components.ImageMessage import ImageMessage
@@ -11,10 +11,9 @@ from data.user.User import User
 from conn.ClientSocket import ClientSocket
 from conn.SocketCommands import SocketCommands
 
-class Channel(Frame):
+class Channel(ttk.Frame):
     def __init__(self, parent, id, on_close, socket: ClientSocket, *args, **kwargs):
         super().__init__(parent.channel_notebook, *args, **kwargs)
-
         self.id = id
         self.channel_info = {}  # only channel info, no messages or files
         self.on_close = on_close
@@ -24,28 +23,28 @@ class Channel(Frame):
 
         
         ClickableImage(self, on_close, os.path.join(os.getcwd(),'assets','images','x_button.png')).pack(side=TOP, anchor=E)
-        self.scroll_frame = Frame(self)
-        self.input_frame = Frame(self)
-        self.label = Label(self)
+        self.scroll_frame = ttk.Frame(self)
+        self.input_frame = ttk.Frame(self)
+        self.label = ttk.Label(self)
         self.label.pack(padx=10, pady=5, side=TOP)
 
         self.message_canvas = Canvas(self.scroll_frame, bg='white', width=580, height=500, scrollregion=(0, 0, 550, 10000))
         self.message_canvas.pack(side='left')
 
-        self.scrollbar = Scrollbar(self.scroll_frame, orient=VERTICAL, command=self.message_canvas.yview)
+        self.scrollbar = ttk.Scrollbar(self.scroll_frame, orient=VERTICAL, command=self.message_canvas.yview)
         self.scrollbar.pack(side='right', fill='y')
         self.message_canvas['yscrollcommand'] = self.scrollbar.set
         self.scrollbar.config(command=self.message_canvas.yview)
         self.message_canvas.bind_all("<MouseWheel>", self.on_mousewheel)
 
-        self.message_frame = Frame(self.message_canvas, bg='white')
+        self.message_frame = ttk.Frame(self.message_canvas)
         self.message_canvas.create_window((0, 10000), window=self.message_frame, anchor='sw')
         self.scroll_frame.pack(side=TOP)
 
         self.message_var = StringVar()
-        self.send_button = Button(self.input_frame, text="Send", font=('Arial', 8, 'italic'),
+        self.send_button = ttk.Button(self.input_frame, text="Send",
                                 command=lambda: self.send_message(self.message_var.get()))
-        self.message_entry = Entry(self.input_frame, textvariable=self.message_var)
+        self.message_entry = ttk.Entry(self.input_frame, textvariable=self.message_var)
 
         self.upload_button = ClickableImage(self.input_frame,on_click= lambda e: self.upload_file(), src=os.path.join(os.getcwd(),'assets','images','upload_button.png'))
 

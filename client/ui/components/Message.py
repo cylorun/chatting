@@ -1,17 +1,20 @@
 from tkinter import *
+from tkinter import ttk
 import datetime
-class Message(Frame):
+class Message(ttk.Frame):
     def __init__(self, parent, message, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
-        self.configure(padx=5,pady=5,borderwidth=2, relief="solid")
+        # self.configure(padx=5,pady=5,borderwidth=2, relief="solid")
+        self.configure(borderwidth=2, relief="solid")
+
         self.message_data = message
 
         self.user_data = self.message_data['owner']
         self.date = Message.epoch_to_datetime(self.message_data['date'])
         
-        self.time_stm_label = Label(self)
-        self.message_author_label = Label(self)
-        self.message_content_label = Label(self)
+        self.time_stm_label = ttk.Label(self)
+        self.message_author_label = ttk.Label(self)
+        self.message_content_label = ttk.Label(self)
         
         self.load()
         

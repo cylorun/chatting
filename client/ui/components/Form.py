@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import ttk
 from tkinter import messagebox
 from ui.components.ChannelList import ChannelList
 from util.Observable import Observable
@@ -132,38 +133,28 @@ class JoinChannelForm(Toplevel):
 
 
 class MakeChannelForm(Toplevel):
-    def __init__(self, callback, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self,parent, callback, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
         self.callback = callback
         self.geometry('350x150')
-        self.frame = LabelFrame(self, text="Create a channel.")
+        self.frame = ttk.LabelFrame(self, text="Create a channel.")
         self.frame.pack(fill=BOTH, expand=True)
         self.resizable(False, False)
 
         self.channel_var = StringVar()
-        self.channel_entry = Entry(self.frame, textvariable=self.channel_var)
-        self.channel_entry.pack(pady=5)
-
-        self.password_frame = Frame(self.frame)
-        self.password_label = Label(self.password_frame, text="Password (optional):")
-        self.password_label.pack(side=LEFT)
+        channel_frame = ttk.Frame(self.frame)
+        ttk.Label(channel_frame, text="Channel Name").pack(side=LEFT)
+        ttk.Entry(channel_frame, textvariable=self.channel_var).pack(side=RIGHT)
+        channel_frame.pack(side=TOP, padx=5, pady=5)
+        
         self.password_var = StringVar()
-        self.password_entry = Entry(self.password_frame, textvariable=self.password_var, show="*")
-        self.password_entry.pack(side=LEFT)
-        self.show_password_button = Button(self.password_frame, text="Show Password", command=self.toggle_password_entry)
-        self.show_password_button.pack(side=LEFT)
-        self.password_frame.pack(pady=5)
-
-        self.submit_button = Button(self.frame, text="Create", command=self.on_click)
-        self.submit_button.pack(pady=5)
-
-    def toggle_password_entry(self):
-        if self.password_entry['show'] == "":
-            self.password_entry.config(show="*")
-            self.show_password_button.config(text="Show Password")
-        else:
-            self.password_entry.config(show="")
-            self.show_password_button.config(text="Hide Password")
+        password_frame = ttk.Frame(self.frame)
+        ttk.Label(password_frame, text="Password (optional):", font=('Arial',10,'normal')).pack(side=LEFT)
+        ttk.Entry(password_frame, textvariable=self.password_var, show="*").pack(side=RIGHT)
+        password_frame.pack(side=TOP, padx=5, pady=5)
+        
+        self.submit_button = ttk.Button(self.frame, text="Create", command=self.on_click)
+        self.submit_button.pack(side=TOP, padx=5, pady=5)
 
     def on_click(self):
         if self.channel_var.get():

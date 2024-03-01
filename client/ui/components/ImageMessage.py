@@ -1,20 +1,23 @@
 from tkinter import *
 import datetime, base64, os, secrets, string
+from tkinter import ttk
+
 from PIL import Image
 from io import BytesIO
 
-class ImageMessage(Frame):
+class ImageMessage(ttk.Frame):
     def __init__(self, parent, message, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
-        self.configure(padx=5,pady=5,borderwidth=2, relief="solid")
+        # self.configure(padx=5,pady=5,borderwidth=2, relief="solid")
+        self.configure(borderwidth=2, relief="solid")
         self.message_data = message
 
         self.user_data = self.message_data['owner']
         self.date = ImageMessage.epoch_to_datetime(self.message_data['date'])
         
-        self.time_stm_label = Label(self)
-        self.message_author_label = Label(self)
-        self.message_content_label = Label(self)
+        self.time_stm_label = ttk.Label(self)
+        self.message_author_label = ttk.Label(self)
+        self.message_content_label = ttk.Label(self)
         self.image_dir = os.path.join(os.getcwd(),'temp')
         self.file_extension = self.message_data['name'].split('.')[-1]
         self.img_path = os.path.join(os.getcwd(),'temp', f'{self.message_data["image_id"]}.{self.file_extension}')

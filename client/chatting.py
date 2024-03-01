@@ -10,6 +10,7 @@ from util.logging import Logging
 from util.ChannelManager import ChannelManager
 from conn.ClientSocket import ClientSocket
 from conn.SocketCommands import SocketCommands
+from ui.Theme import Theme
 import host
 import requests, sys, os, json, threading
 
@@ -26,9 +27,10 @@ class Chatterino:
         self.max_retries = 5 
         self.channel_notebook = ttk.Notebook(self.root)
         self.menu = ToolMenu(self)
-        
         self.root.config(menu=self.menu)
         self.channel_notebook.pack(fill='both', expand=True)
+
+        Theme.light(self.root)
         self.client_socket.connect()
         self.client_socket.listen()
 
