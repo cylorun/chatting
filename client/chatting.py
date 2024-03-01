@@ -110,12 +110,14 @@ class Chatterino:
             name = data['name']
             password = data['password']
         except Exception as e:
-            print(e)
+            messagebox.showerror('Missing parameters',e)
         owner = UserManager.get_active()['user_id']
         res = requests.post(f'{host.API_ADDR}/api/channel/new', json={"name":name, "password":password,"user_id":owner},
                         headers={'Content-Type': 'application/json'})
-        
-        self.add_channel(res.json()['channel_id'])
+        if res.status_code == 200:
+            self.add_channel(res.json()['channel_id'])
+        elif res.status_code == 401:
+            messagebox.showerror('Name conflict', "A cannel with that name already exists!")
     
     def remove_channel(self, channel):
         self.client_socket.send(f'{SocketCommands.COMM_USER_LEAVE}:{{"user_id":{User.get_instance().get_id()},"channel_id":{channel.id}}}')

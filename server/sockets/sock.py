@@ -44,7 +44,7 @@ class Sock():
             except Exception as e:
                 print(f"Error handling client request: {e}")
                 print(f'Ammount of clients: {len(self.clients)}')
-                continue
+                break
 
 
     def get_data(self, sock: socket.socket):

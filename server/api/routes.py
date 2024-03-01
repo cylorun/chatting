@@ -109,19 +109,19 @@ class App:
         def new_channel():
             data = request.get_json()
             try:
-                name = data['name']
+                name = data['name'].capitalize()
                 owner = data['user_id']
+                password = data['password']
             except Exception:
                 return jsonify({'Error':'bad req'}), 401
-            try:
-                password = data['password']
-            except KeyError:
-                password = None
 
-
-            if Data.insert('INSERT INTO channels (date, name, password, user_id) VALUES (?,?,?,?)',(int(time.time()), name, password, owner)):
-                return jsonify(Data.select(f"SELECT * FROM channels WHERE name='{name}' AND password='{password}' AND user_id='{owner}'")[0]), 200
+            if Data.select(f"SELECT * FROM CHANNELS WHERE name='{name}'"):
+                return jsonify({'Error':'Channel with that name already exists!'}), 401
             
+            if Data.insert('INSERT INTO channels (date, name, password, user_id) VALUES (?,?,?,?)',(int(time.time()), name, password, owner)):
+                data = Data.select(f"SELECT * FROM channels WHERE name='{name}'")
+                if data:
+                    return data[0]
             return jsonify({'Error':'Failed to insert data'}), 400
         
 
