@@ -1,6 +1,6 @@
 import socket
 import threading, secrets, string
-import socket_handler as sh
+import util.socket_handler as sh
 
 class Sock():
 
