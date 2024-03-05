@@ -1,7 +1,7 @@
 from tkinter import ttk
 
 
-class Theme: # top 10 least ai generated files
+class Theme:
     def dark(root):
         style = ttk.Style(root)
 

@@ -1,10 +1,10 @@
 from tkinter import *
 from tkinter import ttk
-from tkinter import messagebox
+from tkinter import messagebox, simpledialog
 from ui.components.ChannelList import ChannelList
 from util.Observable import Observable
 
-import requests, threading, host
+import requests, threading, host, hashlib
 
 
 class SignIn(Toplevel):
@@ -87,12 +87,12 @@ class Login(Toplevel):
 
 
 class JoinChannelForm(Toplevel):
-    def __init__(self, callback, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, parent, callback, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
 
         self.callback = callback
         self.geometry('250x150')
-
+        self.parent = parent
         self.label_frame = LabelFrame(self, text="Choose a channel")
         self.label_frame.pack()
 
@@ -121,14 +121,45 @@ class JoinChannelForm(Toplevel):
                 self.channel_list.update([])
         except Exception: # happens cuz channel_list or loading_label is destroyed
             pass
+    
+    def clear(self):
+        for w in self.winfo_children():
+            w.destroy()
+    
+    def has_password(self, channel_id):
+        res = requests.get(f'{host.API_ADDR}/api/channel/{channel_id}')
+        if res.status_code == 200:
+            if res.json()['channel']['password']:
+                return True
+        return False
+    def check_password(self, channel_id ,attempted):
+        res = requests.get(f'{host.API_ADDR}/api/channel/{channel_id}')
+        if res.status_code == 200:
+            if res.json()['channel']['password'] == hashlib.sha256(attempted.encode()).hexdigest():
+                return True
+            
+        return False
 
+                
     def on_choice(self, channel_id):
+        if self.has_password(channel_id):
+            while True:
+                passw = simpledialog.askstring('Password','This channel requires a password.', show='*')
+                if passw:
+                    if self.check_password(channel_id, passw):
+                        break
+                    else:
+                        messagebox.showwarning('Incorrect password', 'Incorrect password')
+                else:
+                    self.obs.stop()
+                    self.destroy()
+                    print('b')
+                    return
         self.obs.stop()
         self.callback(channel_id)
         self.destroy()
 
 
-        
 
 
 
@@ -165,3 +196,5 @@ class MakeChannelForm(Toplevel):
             self.destroy()
         else:
             messagebox.showwarning('Missing fields','You did not fill out the required fields.')
+
+

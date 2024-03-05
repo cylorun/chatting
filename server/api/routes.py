@@ -114,7 +114,8 @@ class App:
                 password = data['password']
             except Exception:
                 return jsonify({'Error':'bad req'}), 401
-
+            if password:
+                password = hashlib.sha256(password.encode()).hexdigest()
             if Data.select(f"SELECT * FROM CHANNELS WHERE name='{name}'"):
                 return jsonify({'Error':'Channel with that name already exists!'}), 401
             
