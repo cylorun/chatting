@@ -155,6 +155,7 @@ class Chatterino:
     
     def on_socket(self, data):
         command, args = data.split(':', 1)
+        print(data)
         args = json.loads(args)
         print(f'Recived:{command}\nargs:{args}\nRaw:{data}')
 
