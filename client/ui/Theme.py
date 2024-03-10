@@ -21,6 +21,8 @@ class Theme:
 
         style.configure("TCanvas", background="#2B2B2B", highlightthickness=0)
 
+        style.configure("TFrame", background="#2B2B2B", highlightthickness=0)
+
         style.configure("TScrollbar", background="#3C3F41", troughcolor="#2B2B2B", borderwidth=0)
         style.map("TScrollbar", background=[("active", "#4E5254")])
         style.configure("TNotebook", background="#2B2B2B", borderwidth=0)
@@ -45,6 +47,8 @@ class Theme:
         style.map("TEntry", background=[("focus", "#073642")], foreground=[("disabled", "#657B83")])
 
         style.configure("TCanvas", background="#000000", highlightthickness=0)
+
+        style.configure("TFrame", background="#000000", highlightthickness=0)
 
         style.configure("TScrollbar", background="#002B36", troughcolor="#000000", borderwidth=0)
         style.map("TScrollbar", background=[("active", "#073642")])
@@ -71,6 +75,8 @@ class Theme:
 
         style.configure("TCanvas", background="#F0F0F0", highlightthickness=0)
 
+        style.configure("TFrame", background="#F0F0F0", highlightthickness=0)
+
         style.configure("TScrollbar", background="#E0E0E0", troughcolor="#F0F0F0", borderwidth=0)
         style.map("TScrollbar", background=[("active", "#D0D0D0")])
         style.configure("TNotebook", background="#F0F0F0", borderwidth=0)
@@ -84,18 +90,24 @@ class Theme:
                         json.dump({"theme":theme}, file, indent=2)
     def get_theme():
         if os.path.exists(Theme.theme_json):
-            with open(Theme.theme_json) as file:
-                return json.load(file)
+            try:
+                with open(Theme.theme_json) as file:
+                    return json.load(file)['theme']
+            except KeyError:
+                return None
         return None
     
     def load_prev(root):
         prev = Theme.get_theme()
-        match prev:
+        Theme.set_theme(prev, root)
+    
+    def set_theme(theme, root):
+        match theme:
             case 'light':
                 Theme.light(root)
             case 'dark':
                 Theme.dark(root)
             case 'aurora':
-                Theme.dark(root)
+                Theme.aurora(root)
             case _: # default case
                 Theme.light(root)

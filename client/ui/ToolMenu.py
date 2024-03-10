@@ -2,6 +2,7 @@ from tkinter import *
 from data.user.UserManager import UserManager
 from data.user.User import User
 from ui.components.Form import *
+from ui.Theme import Theme
 
 
 class ToolMenu(Menu):
@@ -13,9 +14,14 @@ class ToolMenu(Menu):
         file_menu = Menu(self, tearoff=0)
         file_menu.add_command(label="Exit", command=self.app.exit)
         self.add_cascade(label="File",menu=file_menu)
-        
         settings_menu = Menu(self, tearoff=0)
-        settings_menu.add_command(label='Theme')
+
+        theme_options = Menu(settings_menu, tearoff=0)
+        themes = ['light','dark','aurora']
+        for theme in themes:
+            theme_options.add_command(label=theme,command=lambda theme= theme: Theme.set_theme(theme, self.app.root))
+
+        settings_menu.add_cascade(label='Theme', menu=theme_options)
         settings_menu.add_command(label='My Profile')
         settings_menu.add_separator()
         settings_menu.add_command(label='Log out', command=self.app.log_out)

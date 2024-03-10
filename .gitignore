@@ -6,3 +6,5 @@
 *.png
 *.gif
 *.jpg
+/config
+/temp

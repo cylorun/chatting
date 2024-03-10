@@ -5,26 +5,24 @@ from ui.components.Channel import Channel
 from data.user.User import User
 from data.user.UserManager import UserManager
 from ui.components.Form import *
-from ui.menu import ToolMenu
+from ui.ToolMenu import ToolMenu
 from util.logging import Logging
 from util.ChannelManager import ChannelManager
 from conn.ClientSocket import ClientSocket
 from conn.SocketCommands import SocketCommands
 from ui.Theme import Theme
-import host
-import requests, sys, os, json, threading, pip
+import requests, sys, os, json, threading, host
 
-class Chatterino:
+class Chatting:
     def __init__(self, user = None):
         self.user = user
         self.root = Tk()
         self.client_socket = ClientSocket(host.SOCKET_ADDR, self.on_socket)
-        self.root.title('Lokaverk')    
+        self.root.title('Chatting')    
         self.root.geometry('600x650')
         self.root.resizable(False, False)
         
         self.CLIENT_ID = None
-        self.max_retries = 5 
         self.channel_notebook = ttk.Notebook(self.root)
         self.menu = ToolMenu(self)
         self.root.config(menu=self.menu)
@@ -188,7 +186,7 @@ def run(is_login=False, user=None):
     app.run()
 
 if __name__ == '__main__':
-    app = Chatterino()
+    app = Chatting()
     app.check_for_conn()
     if UserManager.has_active():
         app.user = User.get_instance(UserManager.get_active())
