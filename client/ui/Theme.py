@@ -1,7 +1,9 @@
 from tkinter import ttk
-
+import os, json
 
 class Theme:
+    theme_json = os.path.join(os.getcwd(),'config','theme.json')
+    
     def dark(root):
         style = ttk.Style(root)
 
@@ -25,7 +27,8 @@ class Theme:
 
         style.configure("TNotebook.Tab", background="#3C3F41", foreground="#A9B7C6", borderwidth=0)
         style.map("TNotebook.Tab", background=[("selected", "#4E5254"), ("active", "#313335")])
-        
+        Theme.save_theme('dark')
+
     def aurora(root):
         style = ttk.Style(root)
 
@@ -49,6 +52,7 @@ class Theme:
 
         style.configure("TNotebook.Tab", background="#002B36", foreground="#FFFFFF", borderwidth=0)
         style.map("TNotebook.Tab", background=[("selected", "#073642"), ("active", "#586E75")])
+        Theme.save_theme('aurora')
         
     def light(root):
         style = ttk.Style(root)
@@ -73,3 +77,25 @@ class Theme:
 
         style.configure("TNotebook.Tab", background="#E0E0E0", foreground="#333333", borderwidth=0)
         style.map("TNotebook.Tab", background=[("selected", "#D0D0D0"), ("active", "#C0C0C0")])
+        Theme.save_theme('light')
+    
+    def save_theme(theme):
+        with open(Theme.theme_json, 'w+') as file:
+                        json.dump({"theme":theme}, file, indent=2)
+    def get_theme():
+        if os.path.exists(Theme.theme_json):
+            with open(Theme.theme_json) as file:
+                return json.load(file)
+        return None
+    
+    def load_prev(root):
+        prev = Theme.get_theme()
+        match prev:
+            case 'light':
+                Theme.light(root)
+            case 'dark':
+                Theme.dark(root)
+            case 'aurora':
+                Theme.dark(root)
+            case _: # default case
+                Theme.light(root)

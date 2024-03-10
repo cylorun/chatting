@@ -12,7 +12,7 @@ from conn.ClientSocket import ClientSocket
 from conn.SocketCommands import SocketCommands
 from ui.Theme import Theme
 import host
-import requests, sys, os, json, threading
+import requests, sys, os, json, threading, pip
 
 class Chatterino:
     def __init__(self, user = None):
@@ -30,31 +30,32 @@ class Chatterino:
         self.root.config(menu=self.menu)
         self.channel_notebook.pack(fill='both', expand=True)
 
-        Theme.light(self.root)
-        self.client_socket.connect()
-        self.client_socket.listen()
-
     def log_out(self):
         UserManager.remove(User.get_instance().to_dict())
         messagebox.showinfo('Restart needed','Please restart the application')        
 
 
     def run(self):
+        Theme.load_prev(self.root)
+        self.client_socket.connect()
+        self.client_socket.listen()
         self.root.protocol("WM_DELETE_WINDOW", self.exit)
         self.root.mainloop()
     
     def server_on(self):
+        cs = ClientSocket(host.SOCKET_ADDR,None)
         try:
             requests.get(f'{host.API_ADDR}/api/status')
+            if not cs.connect():
+                return False
         except Exception:
             return False
+        cs.close()
         return True
 
-    def raise_for_conn(self):
-        for i in range(self.max_retries,0,-1):
-            if self.server_on():
-                return 
-            Logging.error(f'Could not connect to the server, trying {i} more times.')
+    def check_for_conn(self):
+        if self.server_on():
+            return
         Logging.error('Failed to connect to the server, quitting...')
         messagebox.showerror("Server Error","Could not connect to the server")
         sys.exit(1)
@@ -155,9 +156,8 @@ class Chatterino:
     
     def on_socket(self, data):
         command, args = data.split(':', 1)
-        print(data)
         args = json.loads(args)
-        print(f'Recived:{command}\nargs:{args}\nRaw:{data}')
+        print(f'Recived:{command}\nArgs:{args}\n')
 
         if command == SocketCommands.COMM_UPDATE:
             for channel in self.channel_notebook.winfo_children(): 
@@ -168,10 +168,12 @@ class Chatterino:
             if not self.CLIENT_ID:
                 self.CLIENT_ID = args['id']
                 print(f'Client id assigned:{args["id"]}')
+
         elif command == SocketCommands.COMM_USER_LEAVE:
             for channel in self.channel_notebook.winfo_children():
                 if channel.id == int(args['channel_id']):
                     channel.user_leave(args)
+
         elif command == SocketCommands.COMM_USER_JOIN:
             for channel in self.channel_notebook.winfo_children():
                 if channel.id == int(args['channel_id']):
@@ -179,20 +181,15 @@ class Chatterino:
 
 
 
+def run(is_login=False, user=None):
+    if user:
+        app.add_user(user, is_login)
+    threading.Thread(target=app.load_channels, daemon=True).start()
+    app.run()
+
 if __name__ == '__main__':
-    def run(is_login = False ,user = None):
-        app.raise_for_conn()
-        if user:
-            app.add_user(user, is_login)
-            
-        threading.Thread(target=app.load_channels, daemon=True).start()
-        app.run()
-
-    def pip_install():
-        pass
-
     app = Chatterino()
-    app.raise_for_conn()
+    app.check_for_conn()
     if UserManager.has_active():
         app.user = User.get_instance(UserManager.get_active())
         run()

@@ -1,3 +1,3 @@
-API_ADDR = 'http://192.168.1.2:1001'
-SOCKET_ADDR = ('192.168.1.2',1001)
+API_ADDR = 'http://localhost:3030'
+SOCKET_ADDR = ('localhost',5555)
 

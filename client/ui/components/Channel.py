@@ -12,7 +12,7 @@ from conn.ClientSocket import ClientSocket
 from conn.SocketCommands import SocketCommands
 
 class Channel(ttk.Frame):
-    def __init__(self, parent, id, on_close, socket: ClientSocket, *args, **kwargs):
+    def __init__(self, parent, id: int, on_close: callable, socket: ClientSocket, *args, **kwargs):
         super().__init__(parent.channel_notebook, *args, **kwargs)
         self.id = id
         self.channel_info = {}  # only channel info, no messages or files

@@ -12,8 +12,12 @@ class ClientSocket:
         threading.Thread(target=self.do_listen, daemon=True).start()
 
     def connect(self):
-        self.socket.connect(self.server_addr)
+        try:
+            self.socket.connect(self.server_addr)
+        except Exception:
+            return False
         self.connected = True
+        return True
 
     def send(self, data):
         if self.connected:
