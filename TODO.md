@@ -1,5 +1,2 @@
-- style it...
 - fix userstatuslabel duplication
 - deploy to a online server
-- make channels joinable with passwords
-- extract Form.py
